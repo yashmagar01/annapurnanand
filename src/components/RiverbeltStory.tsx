@@ -145,7 +145,7 @@ export default function RiverbeltStory() {
         <div className="text-center mt-16">
           <a
             href="/about"
-            className="btn-herbal inline-flex items-center gap-2"
+            className="btn btn-link inline-flex items-center gap-2"
           >
             Learn More About Our Story
             <span>→</span>

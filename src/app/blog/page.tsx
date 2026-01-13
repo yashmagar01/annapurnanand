@@ -132,7 +132,7 @@ export default function BlogPage() {
                   </div>
                 </div>
 
-                <Link href={`/blog/${featuredPost.slug}`} className="btn-herbal inline-flex items-center gap-2">
+                <Link href={`/blog/${featuredPost.slug}`} className="btn btn-link inline-flex items-center gap-2">
                   Read Full Article
                   <ArrowRight size={18} />
                 </Link>
