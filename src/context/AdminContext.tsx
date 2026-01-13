@@ -110,7 +110,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(
     productsData.products.map((p, i) => ({
       ...p,
-      stock: [45, 32, 8, 15, 52, 5][i] // Simulated stock - some low for alerts
+      stock: [45, 32, 8, 15, 52, 5][i], // Simulated stock - some low for alerts
+      featured: (p as any).featured || false,
+      nutrition: (p.nutrition as unknown) as Record<string, string>
     })) as Product[]
   );
   
