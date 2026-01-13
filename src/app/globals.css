@@ -74,8 +74,8 @@
   --font-body: 'Inter', system-ui, sans-serif;
 }
 
-@theme inline {
-  /* Colors */
+/* Colors - Mapped for handy usage if needed, though mostly using vars directly */
+:root {
   --color-herbal: var(--herbal-green);
   --color-herbal-dark: var(--herbal-green-dark);
   --color-herbal-light: var(--herbal-green-light);
@@ -95,10 +95,6 @@
   --color-text: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-light: var(--text-light);
-  
-  /* Fonts */
-  --font-heading: var(--font-heading);
-  --font-body: var(--font-body);
 }
 
 /* Base Styles */
