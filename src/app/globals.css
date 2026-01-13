@@ -1,26 +1,660 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary Brand Colors - Annapurnanand Palette */
+  /* Herbal Green Scale (Primary) */
+  --herbal-green-50: #EDF5F0;
+  --herbal-green-100: #D4E8DA;
+  --herbal-green-200: #A9D1B5;
+  --herbal-green-300: #7EBA90;
+  --herbal-green-400: #5A9469;
+  --herbal-green: #4A7C59;
+  --herbal-green-600: #3D6649;
+  --herbal-green-dark: #3D6649;
+  --herbal-green-light: #5A9469;
+  --herbal-green-700: #2F4F38;
+  --herbal-green-800: #223927;
+  --herbal-green-900: #142316;
+  
+  /* Riverbelt Blue Scale */
+  --riverbelt-blue-50: #E8F0F6;
+  --riverbelt-blue-100: #C5DAE8;
+  --riverbelt-blue-200: #8BB5D1;
+  --riverbelt-blue-300: #5190BA;
+  --riverbelt-blue: #2C5F8A;
+  --riverbelt-blue-dark: #234B6E;
+  --riverbelt-blue-light: #3A7BAB;
+  --riverbelt-blue-700: #1A3752;
+  --riverbelt-blue-800: #112336;
+  --riverbelt-blue-900: #08101A;
+  
+  /* Premium Gold Scale */
+  --premium-gold-50: #FBF8ED;
+  --premium-gold-100: #F5EED3;
+  --premium-gold-200: #EBDDA7;
+  --premium-gold-light: #E5C85C;
+  --premium-gold: #D4AF37;
+  --premium-gold-dark: #B8962E;
+  --premium-gold-700: #8A701F;
+  --premium-gold-800: #5C4B15;
+  --premium-gold-900: #2E250A;
+  
+  /* Premium Shadow Effects */
+  --gold-glow: 0 0 20px rgba(212, 175, 55, 0.3);
+  --gold-glow-strong: 0 0 30px rgba(212, 175, 55, 0.5);
+  --herbal-glow: 0 4px 20px rgba(74, 124, 89, 0.25);
+  
+  /* Backgrounds */
+  --parchment: #F9F7F2;
+  --parchment-dark: #EDE8DD;
+  --parchment-cream: #FFFEF9;
+  --glass-white: rgba(255, 255, 255, 0.8);
+  --glass-dark: rgba(0, 0, 0, 0.05);
+  
+  /* Text */
+  --text-primary: #2D3436;
+  --text-secondary: #636E72;
+  --text-light: #95A5A6;
+  
+  /* Semantic Colors */
+  --success: #00B894;
+  --warning: #FDCB6E;
+  --error: #E17055;
+  
+  /* Spacing Scale (Organic India inspired - generous) */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  
+  /* Fonts */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-herbal: var(--herbal-green);
+  --color-herbal-dark: var(--herbal-green-dark);
+  --color-herbal-light: var(--herbal-green-light);
+  
+  --color-riverbelt: var(--riverbelt-blue);
+  --color-riverbelt-dark: var(--riverbelt-blue-dark);
+  --color-riverbelt-light: var(--riverbelt-blue-light);
+  
+  --color-gold: var(--premium-gold);
+  --color-gold-dark: var(--premium-gold-dark);
+  --color-gold-light: var(--premium-gold-light);
+  
+  --color-parchment: var(--parchment);
+  --color-parchment-dark: var(--parchment-dark);
+  --color-parchment-cream: var(--parchment-cream);
+  
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-light: var(--text-light);
+  
+  /* Fonts */
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--parchment);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography - Mobile-First Fluid Scaling */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw + 1rem, 3.5rem);
+  color: var(--riverbelt-blue);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw + 0.5rem, 2.5rem);
+  color: var(--herbal-green);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2vw + 0.5rem, 1.75rem);
+}
+
+h4 {
+  font-size: clamp(1.1rem, 1.5vw + 0.5rem, 1.375rem);
+}
+
+/* Premium Text Utilities */
+.text-premium {
+  color: var(--premium-gold);
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--premium-gold) 0%, var(--premium-gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Doctor's Note - Premium Prescription Style */
+.doctors-note {
+  position: relative;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--riverbelt-blue);
+  line-height: 1.8;
+  background: linear-gradient(135deg, rgba(44, 95, 138, 0.06) 0%, rgba(74, 124, 89, 0.04) 50%, rgba(212, 175, 55, 0.03) 100%);
+  border-left: 4px solid var(--premium-gold);
+  padding: 2rem 2rem 2rem 2.5rem;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.doctors-note::before {
+  content: '"';
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  font-size: 4rem;
+  font-family: Georgia, serif;
+  color: var(--premium-gold);
+  opacity: 0.3;
+  line-height: 1;
+}
+
+.doctors-note::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, transparent 50%, rgba(212, 175, 55, 0.08) 50%);
+  border-radius: 0 12px 0 0;
+}
+
+/* Button Styles - Premium & Polished */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.75rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  gap: 0.5rem;
+  border: none;
+  outline: none;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--premium-gold) 0%, var(--premium-gold-dark) 100%);
+  color: var(--text-primary);
+  border: none;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-gold:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, var(--premium-gold-light) 0%, var(--premium-gold) 100%);
+}
+
+.btn-gold:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-herbal {
+  background: linear-gradient(135deg, var(--herbal-green) 0%, var(--herbal-green-dark) 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(74, 124, 89, 0.25);
+}
+
+.btn-herbal:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(74, 124, 89, 0.4);
+  background: linear-gradient(135deg, #5a9a6f 0%, var(--herbal-green) 100%);
+}
+
+.btn-herbal:active {
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--herbal-green);
+  color: var(--herbal-green);
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background: var(--herbal-green);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 124, 89, 0.25);
+}
+
+/* Premium Link Button - For "Read More", "Learn More" etc */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--herbal-green);
+  background: linear-gradient(135deg, var(--herbal-green-50) 0%, rgba(74, 124, 89, 0.08) 100%);
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-link:hover {
+  background: var(--herbal-green);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 124, 89, 0.25);
+}
+
+.btn-link svg,
+.btn-link .icon {
+  transition: transform 0.3s ease;
+}
+
+.btn-link:hover svg,
+.btn-link:hover .icon {
+  transform: translateX(4px);
+}
+
+/* White/Light Button for Dark Backgrounds */
+.btn-white {
+  background: white;
+  color: var(--herbal-green);
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-white:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: var(--parchment);
+}
+
+/* Ghost Button for Dark Backgrounds */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Trust Badge */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(74, 124, 89, 0.1);
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--herbal-green);
+}
+
+/* Doctor Formulated Badge */
+.doctor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, rgba(44, 95, 138, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+  border: 1px solid var(--premium-gold);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--riverbelt-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Section Styles */
+.section {
+  padding: 5rem 0;
+}
+
+.section-alt {
+  background: var(--parchment-dark);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Elegant Footer Disclaimer */
+.footer-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  max-width: 800px;
+  text-align: center;
+  margin: 0 auto;
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  line-height: 1.6;
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* ============================================
+   GODAVARI RIVER FLOW ANIMATION
+   ============================================ */
+
+.river-path {
+  stroke-dasharray: 20 10;
+  animation: riverMeander 8s ease-in-out infinite;
+}
+
+.river-flow {
+  opacity: 0.6;
+}
+
+@keyframes riverMeander {
+  0%, 100% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: -30;
+  }
+}
+
+/* ============================================
+   PREMIUM UTILITIES - Brand Guardian Styles
+   ============================================ */
+
+/* Glassmorphism Card */
+.glass-card {
+  background: var(--glass-white);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Gold Border Accent */
+.gold-border {
+  border: 2px solid var(--premium-gold);
+  box-shadow: var(--gold-glow);
+}
+
+.gold-border-subtle {
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+}
+
+/* Premium Spotlight Container */
+.spotlight-premium {
+  position: relative;
+  background: linear-gradient(135deg, var(--parchment-cream) 0%, var(--parchment) 50%, var(--parchment-dark) 100%);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.spotlight-premium::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--premium-gold) 0%, transparent 30%, transparent 70%, var(--herbal-green) 100%);
+  border-radius: 26px;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+/* Spacious Sections (Organic India Pattern) */
+.section-spacious {
+  padding: var(--space-2xl) 0;
+}
+
+.section-premium {
+  padding: var(--space-xl) 0;
+  background: linear-gradient(180deg, var(--parchment) 0%, var(--parchment-cream) 50%, var(--parchment) 100%);
+}
+
+/* Premium Divider */
+.divider-gold {
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--premium-gold), transparent);
+  margin: var(--space-md) auto;
+  border-radius: 2px;
+}
+
+.divider-herbal {
+  width: 60px;
+  height: 2px;
+  background: var(--herbal-green);
+  border-radius: 2px;
+}
+
+/* Premium List Bullet Points */
+.premium-list {
+  list-style: none;
+  padding: 0;
+}
+
+.premium-list li {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.premium-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, var(--premium-gold) 0%, var(--premium-gold-dark) 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+/* Credential Badge Premium */
+.credential-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid var(--premium-gold);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+}
+
+/* Enhanced Animations */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(212, 175, 55, 0);
+  }
+}
+
+@keyframes floatUp {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-gold-pulse {
+  animation: goldPulse 2s infinite;
+}
+
+.animate-float {
+  animation: floatUp 3s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+/* ============================================
+   RESPONSIVE - Mobile-First Adjustments
+   ============================================ */
+
+/* Base mobile styles - smaller devices */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .section {
+    padding: 2.5rem 0;
+  }
+  
+  .section-spacious {
+    padding: 3rem 0;
+  }
+  
+  .doctors-note {
+    padding: 1.5rem 1.5rem 1.5rem 2rem;
+  }
+  
+  .btn {
+    min-height: 44px;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Tablet and up */
+@media (max-width: 768px) {
+  .section {
+    padding: 3rem 0;
+  }
+  
+  .section-spacious {
+    padding: 4rem 0;
+  }
+  
+  /* Ensure touch targets are accessible */
+  .card button,
+  .card a {
+    min-height: 44px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .section-spacious {
+    padding: var(--space-2xl) 0;
+  }
 }

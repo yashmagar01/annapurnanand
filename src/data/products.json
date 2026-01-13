@@ -1,0 +1,303 @@
+{
+    "products": [
+        {
+            "id": "daily-moringa-health-drink",
+            "slug": "daily-moringa-health-drink",
+            "name": "Daily Moringa Health Drink",
+            "category": "Powder",
+            "price": 349,
+            "originalPrice": 449,
+            "shortDescription": "Start your day with nature's multivitamin",
+            "netQty": "100g",
+            "ingredients": "100% Moringa (Moringa oleifera) Leaf Powder, Natural Flavor Blend",
+            "idealFor": ["Families", "Working Professionals", "Elderly"],
+            "doctorNote": "I formulated this daily health drink to make Moringa accessible to everyone. The Godavari Riverbelt's mineral-rich soil gives our Moringa leaves exceptional nutrient density. Just one teaspoon in the morning provides your daily dose of iron, calcium, and amino acids that your body craves.",
+            "howToUse": [
+                {
+                    "icon": "glass",
+                    "text": "Mix 1 teaspoon (5g) in a glass of water or buttermilk"
+                },
+                {
+                    "icon": "clock",
+                    "text": "Consume once daily, preferably in the morning"
+                },
+                {
+                    "icon": "leaf",
+                    "text": "Can be added to smoothies or juices for variety"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "5g",
+                "energy": "18 kcal",
+                "protein": "1.5g",
+                "carbohydrates": "2.5g",
+                "fiber": "1.2g",
+                "iron": "2.1mg (12% DV)",
+                "calcium": "52mg (5% DV)",
+                "vitaminA": "378mcg (42% DV)"
+            },
+            "image": "/images/products/daily-moringa.jpg",
+            "featured": true
+        },
+        {
+            "id": "moringa-cocoa-smoothie",
+            "slug": "moringa-cocoa-smoothie",
+            "name": "Moringa Cocoa Smoothie Mix",
+            "category": "Powder",
+            "price": 449,
+            "originalPrice": 549,
+            "shortDescription": "Nutrition meets indulgence for the whole family",
+            "netQty": "150g",
+            "ingredients": "Moringa Leaf Powder, Organic Cocoa Powder, Jaggery, Natural Vanilla",
+            "idealFor": [
+                "Children",
+                "Health-Conscious Parents",
+                "Fitness Enthusiasts"
+            ],
+            "doctorNote": "Getting children to eat their greens is every parent's challenge. This Cocoa-Moringa blend is my solution—rich chocolate taste that kids love, packed with the nutrition only Moringa can provide. The natural sweetness from jaggery means no refined sugar, just pure, guilt-free goodness.",
+            "howToUse": [
+                {
+                    "icon": "blender",
+                    "text": "Blend 2 tablespoons with 200ml milk or plant-based milk"
+                },
+                {
+                    "icon": "fruit",
+                    "text": "Add banana or berries for a complete smoothie"
+                },
+                {
+                    "icon": "clock",
+                    "text": "Ideal as a breakfast drink or post-workout shake"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "15g",
+                "energy": "52 kcal",
+                "protein": "2.8g",
+                "carbohydrates": "8g",
+                "fiber": "1.8g",
+                "iron": "2.4mg (13% DV)",
+                "calcium": "68mg (6% DV)",
+                "magnesium": "45mg (11% DV)"
+            },
+            "image": "/images/products/moringa-cocoa.jpg",
+            "featured": true
+        },
+        {
+            "id": "moringa-millet-nutrition",
+            "slug": "moringa-millet-nutrition",
+            "name": "Moringa Millet Nutrition Powder",
+            "category": "Powder",
+            "price": 399,
+            "originalPrice": 499,
+            "shortDescription": "Ancient grains meet supergreen nutrition",
+            "netQty": "200g",
+            "ingredients": "Ragi (Finger Millet) Flour, Moringa Leaf Powder, Bajra (Pearl Millet), Foxtail Millet, Cardamom",
+            "idealFor": [
+                "Growing Children",
+                "Pregnant Women",
+                "Senior Citizens"
+            ],
+            "doctorNote": "This is my tribute to our grandmother's wisdom. Millets were the backbone of Indian nutrition for centuries. Combined with Moringa's complete protein profile, this powder delivers all 9 essential amino acids. Perfect for bone health, blood sugar management, and sustained energy throughout the day.",
+            "howToUse": [
+                {
+                    "icon": "bowl",
+                    "text": "Add 2 tablespoons to porridge or warm milk"
+                },
+                {
+                    "icon": "wheat",
+                    "text": "Mix with wheat flour for rotis (1:4 ratio)"
+                },
+                {
+                    "icon": "clock",
+                    "text": "Best consumed in the morning or as an evening snack"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "20g",
+                "energy": "68 kcal",
+                "protein": "3.2g",
+                "carbohydrates": "13g",
+                "fiber": "2.5g",
+                "iron": "3.8mg (21% DV)",
+                "calcium": "85mg (7% DV)",
+                "phosphorus": "112mg (9% DV)"
+            },
+            "image": "/images/products/moringa-millet.jpg",
+            "featured": true
+        },
+        {
+            "id": "moringa-digestive-mix",
+            "slug": "moringa-digestive-mix",
+            "name": "Moringa Digestive Herbal Mix",
+            "category": "Powder",
+            "price": 299,
+            "originalPrice": 399,
+            "shortDescription": "Traditional after-meal digestive care",
+            "netQty": "100g",
+            "ingredients": "Moringa Seed Powder, Ajwain (Carom Seeds), Jeera (Cumin), Saunf (Fennel), Rock Salt, Dried Ginger",
+            "idealFor": [
+                "Adults",
+                "Those with Digestive Concerns",
+                "Post-Meal Wellness"
+            ],
+            "doctorNote": "Digestive comfort is the foundation of overall health—this is the core principle of Ayurveda I learned during my BAMS training. This after-meal churna combines Moringa seeds with time-tested digestive herbs. Just half a teaspoon after heavy meals can make a significant difference in how you feel.",
+            "howToUse": [
+                { "icon": "spoon", "text": "Take ½ teaspoon (2g) after meals" },
+                {
+                    "icon": "glass",
+                    "text": "Mix with warm water or consume directly"
+                },
+                {
+                    "icon": "moon",
+                    "text": "Most effective after lunch and dinner"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "2g",
+                "energy": "6 kcal",
+                "protein": "0.4g",
+                "carbohydrates": "0.8g",
+                "fiber": "0.5g",
+                "sodium": "180mg",
+                "digestiveEnzymes": "Natural blend"
+            },
+            "image": "/images/products/moringa-digestive.jpg",
+            "featured": false
+        },
+        {
+            "id": "moringa-capsules",
+            "slug": "moringa-capsules",
+            "name": "Moringa Capsules",
+            "category": "Capsules",
+            "price": 549,
+            "originalPrice": 699,
+            "shortDescription": "Pure Moringa in convenient daily capsules",
+            "netQty": "60 Capsules",
+            "ingredients": "100% Pure Moringa Leaf Powder (500mg per capsule), Vegetable Cellulose Capsule",
+            "idealFor": [
+                "Busy Professionals",
+                "Travelers",
+                "Those preferring capsule supplements"
+            ],
+            "doctorNote": "Not everyone has time for powders and mixing. These capsules contain the same premium Godavari Riverbelt Moringa in a convenient, measured dose. Two capsules daily equals one teaspoon of our powder—same benefits, zero fuss. The vegetable capsule is suitable for vegetarians and vegans.",
+            "howToUse": [
+                {
+                    "icon": "capsule",
+                    "text": "Take 2 capsules daily with water"
+                },
+                {
+                    "icon": "sun",
+                    "text": "Best taken in the morning with breakfast"
+                },
+                {
+                    "icon": "calendar",
+                    "text": "Consistent daily use recommended for best results"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "2 capsules (1000mg)",
+                "energy": "4 kcal",
+                "protein": "0.3g",
+                "iron": "2.1mg (12% DV)",
+                "calcium": "52mg (5% DV)",
+                "vitaminA": "378mcg (42% DV)"
+            },
+            "image": "/images/products/moringa-capsules.jpg",
+            "featured": true
+        },
+        {
+            "id": "moringa-tablets",
+            "slug": "moringa-tablets",
+            "name": "Moringa Tablets",
+            "category": "Tablets",
+            "price": 499,
+            "originalPrice": 649,
+            "shortDescription": "Easy-to-swallow pressed tablets for daily wellness",
+            "netQty": "60 Tablets",
+            "ingredients": "Moringa Leaf Powder (450mg), Moringa Stem Powder (50mg), Natural Binding Agents",
+            "idealFor": [
+                "Senior Citizens",
+                "Those who prefer tablets over capsules",
+                "Daily supplement users"
+            ],
+            "doctorNote": "These tablets include both Moringa leaf and stem, providing a broader spectrum of plant compounds. The stem contains additional fiber and unique antioxidants not found in leaves alone. For my elderly patients who find capsules difficult to swallow, these pressed tablets are the perfect solution.",
+            "howToUse": [
+                { "icon": "pill", "text": "Take 2 tablets daily with meals" },
+                {
+                    "icon": "glass",
+                    "text": "Swallow with a full glass of water"
+                },
+                {
+                    "icon": "heart",
+                    "text": "Continue for at least 3 months for optimal benefits"
+                }
+            ],
+            "nutrition": {
+                "servingSize": "2 tablets (1000mg)",
+                "energy": "4 kcal",
+                "protein": "0.3g",
+                "fiber": "0.4g",
+                "iron": "1.9mg (11% DV)",
+                "calcium": "48mg (4% DV)",
+                "antioxidants": "High ORAC value"
+            },
+            "image": "/images/products/moringa-tablets.jpg",
+            "featured": false
+        }
+    ],
+    "categories": [
+        {
+            "id": "powder",
+            "name": "Powder",
+            "description": "Versatile powders for drinks and cooking"
+        },
+        {
+            "id": "capsules",
+            "name": "Capsules",
+            "description": "Convenient daily supplements"
+        },
+        {
+            "id": "tablets",
+            "name": "Tablets",
+            "description": "Easy-to-swallow pressed tablets"
+        }
+    ],
+    "founder": {
+        "name": "Dr. Mohini Zate",
+        "credentials": "BAMS, MPH-N",
+        "title": "Founder & Chief Formulator",
+        "experience": [
+            "Former District Epidemiologist",
+            "10+ years in community health & nutrition"
+        ],
+        "powerStatement": "Every formulation I create is tested on my own family first. That's not marketing—that's my promise as a mother and a doctor.",
+        "quote": "Nutrition should be simple, natural, and enjoyable. When I saw the disconnect between traditional wisdom and modern convenience, I knew I had to bridge that gap. Every product in our range is something I would give to my own family.",
+        "image": "/images/dr-mohini.jpg"
+    },
+    "riverbeltStory": [
+        {
+            "step": 1,
+            "title": "The Riverbelt",
+            "description": "The fertile Godavari Riverbelt soil, enriched by centuries of alluvial deposits, gives our Moringa unparalleled nutrient density.",
+            "icon": "river"
+        },
+        {
+            "step": 2,
+            "title": "Traceable Farming",
+            "description": "Our HerbalGold Farmer Producer Company members practice sustainable agriculture with complete crop traceability.",
+            "icon": "tractor"
+        },
+        {
+            "step": 3,
+            "title": "Science-Backed Formulation",
+            "description": "Dr. Mohini's lab combines ancient Ayurvedic wisdom with modern nutritional science for optimal formulations.",
+            "icon": "microscope"
+        },
+        {
+            "step": 4,
+            "title": "Your Home",
+            "description": "From soil to soul—premium plant-based nutrition delivered to your doorstep, ready to nourish your family.",
+            "icon": "home"
+        }
+    ]
+}
