@@ -1,4 +1,5 @@
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Contact Us | Annapurnanand HerbalGold',
@@ -9,18 +10,10 @@ export default function ContactPage() {
   return (
     <>
       {/* Page Header */}
-      <section className="bg-gradient-to-r from-[var(--herbal-green)] to-[var(--riverbelt-blue)] py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-white">
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4">
-              Get in Touch
-            </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Have questions? We'd love to hear from you. Our team is here to help.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader 
+        title="Get in Touch" 
+        description="Have questions? We'd love to hear from you. Our team is here to help."
+      />
 
       {/* Contact Content */}
       <section className="section">
