@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Calendar, User, ArrowRight, Clock } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Blog | Health Tips & Wellness',
@@ -76,19 +77,10 @@ export default function BlogPage() {
   return (
     <>
       {/* Page Header */}
-      <section className="bg-gradient-to-r from-[var(--herbal-green)] to-[var(--riverbelt-blue)] py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-white">
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4">
-              Health & Wellness Blog
-            </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Expert insights on nutrition, Ayurveda, and holistic wellness from 
-              Dr. Mohini and our team.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader 
+        title="Health & Wellness Blog" 
+        description="Expert insights on nutrition, Ayurveda, and holistic wellness from Dr. Mohini and our team." 
+      />
 
       {/* Featured Post */}
       {featuredPost && (
