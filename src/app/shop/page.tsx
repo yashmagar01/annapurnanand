@@ -1,14 +1,42 @@
 'use client';
 
-import { useState } from 'react';
-import { Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Filter, Loader2 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
-import productsData from '@/data/products.json';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { createClient } from '@/lib/supabase/client';
+import { Product } from '@/lib/database.types';
+import PageHeader from '@/components/PageHeader';
 
-const { products, categories } = productsData;
+const CATEGORIES = [
+  { id: 'powder', name: 'Powder' },
+  { id: 'capsules', name: 'Capsules' },
+  { id: 'tablets', name: 'Tablets' },
+];
 
 export default function ShopPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching products:', error);
+      } else {
+        setProducts(data || []);
+      }
+      setLoading(false);
+    }
+    
+    fetchProducts();
+  }, [supabase]);
 
   const filteredProducts = selectedCategory === 'all'
     ? products
@@ -16,20 +44,18 @@ export default function ShopPage() {
 
   return (
     <>
-      {/* Page Header */}
-      <section className="bg-gradient-to-r from-[var(--herbal-green)] to-[var(--riverbelt-blue)] py-16">
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-100">
         <div className="container mx-auto px-4">
-          <div className="text-center text-white">
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4">
-              Our Products
-            </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Discover our complete range of Moringa-based nutrition, each product formulated 
-              with care by Dr. Mohini Zate.
-            </p>
-          </div>
+          <Breadcrumbs items={[{ label: 'Shop' }]} />
         </div>
-      </section>
+      </div>
+
+      {/* Page Header */}
+      <PageHeader 
+        title="Our Products" 
+        description="Discover our complete range of Moringa-based nutrition, each product formulated with care by Dr. Mohini Zate."
+      />
 
       {/* Shop Content */}
       <section className="section">
@@ -52,7 +78,7 @@ export default function ShopPage() {
               >
                 All Products
               </button>
-              {categories.map((category) => (
+              {CATEGORIES.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
@@ -68,32 +94,43 @@ export default function ShopPage() {
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="animate-spin text-[var(--herbal-green)]" size={40} />
+            </div>
+          )}
+
           {/* Results Count */}
-          <p className="text-[var(--text-secondary)] mb-6">
-            Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-          </p>
+          {!loading && (
+            <p className="text-[var(--text-secondary)] mb-6">
+              Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+            </p>
+          )}
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                slug={product.slug}
-                name={product.name}
-                shortDescription={product.shortDescription}
-                price={product.price}
-                originalPrice={product.originalPrice}
-                image={product.image}
-                netQty={product.netQty}
-                category={product.category}
-                idealFor={product.idealFor}
-              />
-            ))}
-          </div>
+          {!loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  slug={product.slug}
+                  name={product.name}
+                  shortDescription={product.short_description || ''}
+                  price={product.price}
+                  originalPrice={product.original_price || undefined}
+                  image={product.image || '/images/products/placeholder.jpg'}
+                  netQty={product.net_qty || ''}
+                  category={product.category}
+                  idealFor={product.ideal_for || undefined}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Empty State */}
-          {filteredProducts.length === 0 && (
+          {!loading && filteredProducts.length === 0 && (
             <div className="text-center py-16">
               <p className="text-[var(--text-secondary)] text-lg">
                 No products found in this category.
