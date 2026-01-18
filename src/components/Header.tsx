@@ -1,14 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { ShoppingCart, User, Search, Menu, X, Leaf, Settings } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ShoppingCart, User, Search, Menu, X, Leaf, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { totalItems, setIsCartOpen } = useCart();
+  const { user, loading, signOut } = useAuth();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navLinks = [
     { href: '/shop', label: 'Shop' },
@@ -16,8 +31,22 @@ export default function Header() {
     { href: '/riverbelt', label: 'The Riverbelt' },
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
-    { href: '/admin', label: 'Admin', icon: Settings },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsUserMenuOpen(false);
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -88,13 +117,60 @@ export default function Header() {
               <Search size={20} className="text-[var(--text-primary)]" />
             </button>
 
-            {/* Account */}
-            <button
-              className="p-2 hover:bg-[var(--parchment)] rounded-full transition-colors hidden sm:block"
-              aria-label="Account"
-            >
-              <User size={20} className="text-[var(--text-primary)]" />
-            </button>
+            {/* Account - Now with Auth State */}
+            {!loading && (
+              <div className="relative hidden sm:block" ref={userMenuRef}>
+                {user ? (
+                  <>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="flex items-center gap-2 p-2 hover:bg-[var(--parchment)] rounded-full transition-colors"
+                      aria-label="Account menu"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--herbal-green)] to-[var(--riverbelt-blue)] flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold">
+                          {getUserDisplayName().charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <ChevronDown size={16} className={`text-[var(--text-secondary)] transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* User Dropdown Menu */}
+                    {isUserMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 animate-fade-in-up z-50">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="font-semibold text-[var(--text-primary)]">{getUserDisplayName()}</p>
+                          <p className="text-sm text-[var(--text-secondary)] truncate">{user.email}</p>
+                        </div>
+                        <Link
+                          href="/account/orders"
+                          className="flex items-center gap-3 px-4 py-2.5 text-[var(--text-primary)] hover:bg-[var(--parchment)] transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <ShoppingCart size={18} />
+                          My Orders
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                        >
+                          <LogOut size={18} />
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="flex items-center gap-2 px-4 py-2 bg-[var(--herbal-green)] text-white rounded-full font-medium text-sm hover:bg-[var(--herbal-green-dark)] transition-colors"
+                  >
+                    <User size={16} />
+                    Sign In
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Cart */}
             <button
@@ -153,6 +229,38 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+              
+              {/* Mobile Auth Links */}
+              {!loading && (
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  {user ? (
+                    <>
+                      <div className="px-4 py-2 text-sm text-[var(--text-secondary)]">
+                        Signed in as <strong>{getUserDisplayName()}</strong>
+                      </div>
+                      <button
+                        onClick={() => {
+                          handleSignOut();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 text-red-600 font-medium py-3 px-4 rounded-lg transition-all min-h-[44px] w-full"
+                      >
+                        <LogOut size={18} />
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/auth/login"
+                      className="flex items-center gap-2 text-[var(--herbal-green)] font-medium py-3 px-4 rounded-lg transition-all min-h-[44px]"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User size={18} />
+                      Sign In / Sign Up
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

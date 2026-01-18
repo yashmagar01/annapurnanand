@@ -1,36 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import productsData from '@/data/products.json';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import type { Product, Order, OrderItem } from '@/lib/database.types';
 
-// Types
-export interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  category: string;
-  price: number;
-  originalPrice?: number;
-  shortDescription: string;
-  netQty: string;
-  ingredients?: string;
-  idealFor?: string[];
-  doctorNote?: string;
-  howToUse?: Array<{ icon: string; text: string }>;
-  nutrition?: Record<string, string>;
-  image: string;
-  featured: boolean;
-  stock?: number; // For admin tracking
-}
-
-export interface Order {
-  id: string;
-  customer: string;
-  email: string;
-  date: string;
-  items: Array<{ productId: string; name: string; qty: number; price: number }>;
-  total: number;
-  status: 'pending' | 'packed' | 'shipped' | 'delivered';
+// Extended Order type with items
+export interface OrderWithItems extends Order {
+  order_items?: OrderItem[];
 }
 
 export interface Toast {
@@ -41,89 +17,31 @@ export interface Toast {
 
 interface AdminContextType {
   products: Product[];
-  orders: Order[];
+  orders: OrderWithItems[];
   toasts: Toast[];
-  updateProduct: (id: string, updates: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  addProduct: (product: Omit<Product, 'id' | 'slug'>) => void;
-  updateOrderStatus: (id: string, status: Order['status']) => void;
+  loading: boolean;
+  refreshProducts: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  updateOrderStatus: (id: string, status: string) => Promise<void>;
   showToast: (type: Toast['type'], message: string) => void;
   dismissToast: (id: string) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-// Simulated dummy orders
-const initialOrders: Order[] = [
-  {
-    id: 'ORD001',
-    customer: 'Rahul Sharma',
-    email: 'rahul.s@email.com',
-    date: '2026-01-13',
-    items: [{ productId: 'daily-moringa-health-drink', name: 'Daily Moringa Health Drink', qty: 2, price: 349 }],
-    total: 698,
-    status: 'delivered'
-  },
-  {
-    id: 'ORD002',
-    customer: 'Priya Mehta',
-    email: 'priya.m@email.com',
-    date: '2026-01-13',
-    items: [{ productId: 'moringa-cocoa-smoothie', name: 'Moringa Cocoa Smoothie Mix', qty: 1, price: 449 }],
-    total: 449,
-    status: 'shipped'
-  },
-  {
-    id: 'ORD003',
-    customer: 'Amit Kumar',
-    email: 'amit.k@email.com',
-    date: '2026-01-12',
-    items: [
-      { productId: 'moringa-capsules', name: 'Moringa Capsules', qty: 1, price: 549 },
-      { productId: 'moringa-millet-nutrition', name: 'Moringa Millet Nutrition Powder', qty: 1, price: 399 }
-    ],
-    total: 948,
-    status: 'packed'
-  },
-  {
-    id: 'ORD004',
-    customer: 'Sunita Devi',
-    email: 'sunita.d@email.com',
-    date: '2026-01-12',
-    items: [{ productId: 'moringa-digestive-mix', name: 'Moringa Digestive Herbal Mix', qty: 3, price: 299 }],
-    total: 897,
-    status: 'pending'
-  },
-  {
-    id: 'ORD005',
-    customer: 'Vikram Singh',
-    email: 'vikram.s@email.com',
-    date: '2026-01-11',
-    items: [{ productId: 'moringa-tablets', name: 'Moringa Tablets', qty: 2, price: 499 }],
-    total: 998,
-    status: 'delivered'
-  },
-];
-
 export function AdminProvider({ children }: { children: ReactNode }) {
-  // Initialize products with stock values
-  const [products, setProducts] = useState<Product[]>(
-    productsData.products.map((p, i) => ({
-      ...p,
-      stock: [45, 32, 8, 15, 52, 5][i], // Simulated stock - some low for alerts
-      featured: (p as any).featured || false,
-      nutrition: (p.nutrition as unknown) as Record<string, string>
-    })) as Product[]
-  );
-  
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   const showToast = useCallback((type: Toast['type'], message: string) => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, type, message }]);
     
-    // Auto dismiss after 3 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3000);
@@ -133,40 +51,102 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
+  const refreshProducts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      showToast('error', 'Failed to load products');
+      return;
+    }
+    
+    setProducts(data || []);
+  }, [supabase, showToast]);
+
+  const refreshOrders = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items (*)
+      `)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      showToast('error', 'Failed to load orders');
+      return;
+    }
+    
+    setOrders(data || []);
+  }, [supabase, showToast]);
+
+  // Initial load
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      await Promise.all([refreshProducts(), refreshOrders()]);
+      setLoading(false);
+    }
+    loadData();
+  }, [refreshProducts, refreshOrders]);
+
+  const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
+    const { error } = await supabase
+      .from('products')
+      .update(updates)
+      .eq('id', id);
+    
+    if (error) {
+      showToast('error', 'Failed to update product');
+      return;
+    }
+    
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
     showToast('success', 'Product updated successfully!');
-  }, [showToast]);
+  }, [supabase, showToast]);
 
-  const deleteProduct = useCallback((id: string) => {
+  const deleteProduct = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      showToast('error', 'Failed to delete product');
+      return;
+    }
+    
     setProducts(prev => prev.filter(p => p.id !== id));
     showToast('success', 'Product deleted successfully!');
-  }, [showToast]);
+  }, [supabase, showToast]);
 
-  const addProduct = useCallback((product: Omit<Product, 'id' | 'slug'>) => {
-    const id = product.name.toLowerCase().replace(/\s+/g, '-');
-    const newProduct: Product = {
-      ...product,
-      id,
-      slug: id,
-    };
-    setProducts(prev => [...prev, newProduct]);
-    showToast('success', 'New product added successfully!');
-  }, [showToast]);
-
-  const updateOrderStatus = useCallback((id: string, status: Order['status']) => {
+  const updateOrderStatus = useCallback(async (id: string, status: string) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', id);
+    
+    if (error) {
+      showToast('error', 'Failed to update order status');
+      return;
+    }
+    
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
-    showToast('success', `Order ${id} status updated to ${status}`);
-  }, [showToast]);
+    showToast('success', `Order status updated to ${status}`);
+  }, [supabase, showToast]);
 
   return (
     <AdminContext.Provider value={{
       products,
       orders,
       toasts,
+      loading,
+      refreshProducts,
+      refreshOrders,
       updateProduct,
       deleteProduct,
-      addProduct,
       updateOrderStatus,
       showToast,
       dismissToast,

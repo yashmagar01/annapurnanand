@@ -1,8 +1,9 @@
 'use client';
 
-import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingBag, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 
 export default function CartSidebar() {
   const { items, isCartOpen, setIsCartOpen, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
@@ -50,13 +51,12 @@ export default function CartSidebar() {
               <p className="text-[var(--text-secondary)] text-sm mb-6">
                 Discover our range of Moringa-based nutrition products
               </p>
-              <Link
+              <Button
                 href="/shop"
                 onClick={() => setIsCartOpen(false)}
-                className="btn-herbal"
               >
                 Start Shopping
-              </Link>
+              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -123,14 +123,28 @@ export default function CartSidebar() {
         {items.length > 0 && (
           <div className="p-4 border-t border-gray-100 bg-white">
             {/* Free Shipping Notice */}
-            {totalPrice < 499 && (
-              <div className="mb-4 p-3 bg-[var(--premium-gold)]/10 rounded-lg text-center">
-                <p className="text-sm text-[var(--text-primary)]">
-                  Add <strong>₹{499 - totalPrice}</strong> more for{' '}
-                  <span className="text-[var(--herbal-green)] font-semibold">FREE shipping!</span>
-                </p>
-              </div>
-            )}
+            <div className="mb-4">
+              {totalPrice >= 499 ? (
+                 <div className="p-3 bg-[var(--herbal-green-50)] rounded-lg text-center border border-[var(--herbal-green)]/20">
+                  <p className="text-sm text-[var(--herbal-green)] font-semibold flex items-center justify-center gap-2">
+                    <Truck size={16} />
+                    You've unlocked FREE Shipping!
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-[var(--parchment)] rounded-lg">
+                  <p className="text-sm text-[var(--text-primary)] mb-2 text-center">
+                    Add <strong>₹{499 - totalPrice}</strong> more for <span className="text-[var(--herbal-green)] font-semibold">FREE shipping</span>
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-[var(--herbal-green)] h-full rounded-full transition-all duration-500"
+                      style={{ width: `${(totalPrice / 499) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Subtotal */}
             <div className="flex justify-between items-center mb-4">
@@ -141,17 +155,25 @@ export default function CartSidebar() {
             </div>
 
             {/* Checkout Button */}
-            <button className="w-full btn-gold py-3 text-base">
+            {/* Checkout Button */}
+            <Button
+              href="/checkout"
+              onClick={() => setIsCartOpen(false)}
+              size="lg"
+              fullWidth
+              className="mb-3"
+            >
               Proceed to Checkout
-            </button>
+            </Button>
 
-            <Link
+            <Button
               href="/shop"
               onClick={() => setIsCartOpen(false)}
-              className="block text-center text-sm text-[var(--herbal-green)] font-medium mt-3 hover:underline"
+              variant="secondary"
+              fullWidth
             >
               Continue Shopping
-            </Link>
+            </Button>
           </div>
         )}
       </div>

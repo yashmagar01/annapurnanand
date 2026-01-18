@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Leaf, Mail, Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -46,13 +47,19 @@ export default function Footer() {
               Quick Links
             </h4>
             <ul className="space-y-2">
-              {['Shop All', 'Our Story', 'The Riverbelt', 'Blog', 'FAQs'].map((link) => (
-                <li key={link}>
+              {[
+                { label: 'Shop All', href: '/shop' },
+                { label: 'Our Story', href: '/about' },
+                { label: 'The Riverbelt', href: '/riverbelt' },
+                { label: 'Blog', href: '/blog' },
+                { label: 'FAQs', href: '/faq' },
+              ].map((link) => (
+                <li key={link.label}>
                   <Link
-                    href={`/${link.toLowerCase().replace(' ', '-')}`}
+                    href={link.href}
                     className="text-white/80 hover:text-white hover:pl-2 transition-all text-sm"
                   >
-                    {link}
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -109,9 +116,9 @@ export default function Footer() {
                   placeholder="Your email"
                   className="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-sm placeholder:text-white/50 focus:outline-none focus:border-[var(--premium-gold)]"
                 />
-                <button className="px-4 py-2 bg-[var(--premium-gold)] text-[var(--text-primary)] rounded-lg font-semibold text-sm hover:bg-[var(--premium-gold-light)] transition-colors">
+                <Button size="sm" className="bg-[var(--premium-gold)] text-[var(--text-primary)] hover:bg-[var(--premium-gold-light)] border-none">
                   Join
-                </button>
+                </Button>
               </div>
             </div>
           </div>

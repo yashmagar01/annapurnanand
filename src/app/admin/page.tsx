@@ -2,29 +2,55 @@
 
 import { useAdmin } from '@/context/AdminContext';
 import StatsCard from '@/components/admin/StatsCard';
-import { Package, IndianRupee, Truck, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
+import { Package, IndianRupee, Truck, AlertTriangle, TrendingUp, Clock, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const { products, orders } = useAdmin();
+  const { products, orders, loading, refreshOrders } = useAdmin();
   
   // Calculate stats
   const totalOrders = orders.length;
   const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
   const lowStockProducts = products.filter(p => (p.stock || 0) < 10);
-  const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+  const paidOrders = orders.filter(o => o.status === 'paid').length;
+
+  const statusColors: Record<string, string> = {
+    pending: 'bg-red-100 text-red-700',
+    paid: 'bg-blue-100 text-blue-700',
+    packed: 'bg-yellow-100 text-yellow-700',
+    shipped: 'bg-orange-100 text-orange-700',
+    delivered: 'bg-[var(--herbal-green-50)] text-[var(--herbal-green)]',
+    cancelled: 'bg-gray-100 text-gray-700',
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse text-[var(--text-secondary)]">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] font-[family-name:var(--font-heading)]">
-          Dashboard
-        </h1>
-        <p className="text-[var(--text-secondary)] mt-1">
-          Welcome back, Dr. Mohini! Here's what's happening with your store.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] font-[family-name:var(--font-heading)]">
+            Dashboard
+          </h1>
+          <p className="text-[var(--text-secondary)] mt-1">
+            Welcome back, Dr. Mohini! Here's what's happening with your store.
+          </p>
+        </div>
+        <button
+          onClick={() => refreshOrders()}
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--parchment)] hover:bg-[var(--parchment-dark)] rounded-lg transition-colors text-sm font-medium"
+        >
+          <RefreshCw size={16} />
+          Refresh
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -33,14 +59,12 @@ export default function AdminDashboard() {
           title="Total Orders"
           value={totalOrders}
           icon={Package}
-          trend={{ value: '+12% this week', positive: true }}
           variant="default"
         />
         <StatsCard
           title="Total Revenue"
           value={`₹${totalRevenue.toLocaleString()}`}
           icon={IndianRupee}
-          trend={{ value: '+8% this week', positive: true }}
           variant="success"
         />
         <StatsCard
@@ -99,31 +123,33 @@ export default function AdminDashboard() {
               View All
             </Link>
           </div>
-          <div className="space-y-3">
-            {orders.slice(0, 4).map((order) => {
-              const statusColors = {
-                pending: 'bg-red-100 text-red-700',
-                packed: 'bg-yellow-100 text-yellow-700',
-                shipped: 'bg-[var(--premium-gold-100)] text-[var(--premium-gold-dark)]',
-                delivered: 'bg-[var(--herbal-green-50)] text-[var(--herbal-green)]',
-              };
-              
-              return (
+          {orders.length === 0 ? (
+            <div className="text-center py-8 text-[var(--text-secondary)]">
+              <Package className="mx-auto mb-2 opacity-50" size={32} />
+              <p>No orders yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.slice(0, 5).map((order) => (
                 <div key={order.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                   <div>
-                    <p className="font-medium text-[var(--text-primary)]">{order.id}</p>
-                    <p className="text-sm text-[var(--text-secondary)]">{order.customer}</p>
+                    <p className="font-medium text-[var(--text-primary)] font-mono text-sm">
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </p>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      {order.customer_name || 'Guest'}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-[var(--text-primary)]">₹{order.total}</p>
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[order.status]}`}>
-                      {order.status}
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[order.status || 'pending']}`}>
+                      {order.status || 'pending'}
                     </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}

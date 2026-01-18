@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Award, Users } from 'lucide-react';
+import { ShoppingCart, Award, Users, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { Button } from '@/components/ui/Button';
+import { useState } from 'react';
 
 interface ProductCardProps {
   id: string;
@@ -33,6 +35,7 @@ export default function ProductCard({
   featured = false,
 }: ProductCardProps) {
   const { addItem } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -112,55 +115,65 @@ export default function ProductCard({
             {name}
           </h3>
 
-          {/* Description */}
-          <p className="text-sm text-[var(--text-secondary)] line-clamp-2 mb-2 flex-1">
-            {shortDescription}
-          </p>
 
-          {/* Ideal For Tags - Per Audit Requirement */}
+          {/* Ideal For Tags - Moved Up */}
           {idealFor.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
+            <div className="flex flex-wrap gap-1 mb-2">
               {idealFor.slice(0, 2).map((audience, index) => (
                 <span 
                   key={index}
-                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--herbal-green-50)] text-[var(--herbal-green)] font-medium"
+                  className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[var(--herbal-green-50)] text-[var(--herbal-green)] font-medium border border-[var(--herbal-green-100)]"
                 >
                   <Users size={10} />
                   {audience}
                 </span>
               ))}
-              {idealFor.length > 2 && (
-                <span className="text-xs px-2 py-1 text-[var(--text-light)]">
-                  +{idealFor.length - 2} more
-                </span>
-              )}
             </div>
           )}
+
+          {/* Description */}
+          <p className="text-sm text-[var(--text-secondary)] line-clamp-2 mb-3 flex-1">
+            {shortDescription}
+          </p>
 
           {/* Net Qty */}
           <p className="text-xs text-[var(--text-light)] mb-3">
             Net Qty: {netQty}
           </p>
 
-          {/* Price - Separate Row */}
-          <div className="flex items-baseline gap-2 mb-3">
+          {/* Price - Improved Formatting */}
+          <div className="flex items-center gap-2 mb-4">
             <span className="text-xl sm:text-2xl font-bold text-[var(--herbal-green)]">
               ₹{price}
             </span>
             {originalPrice && (
-              <span className="text-sm text-[var(--text-light)] line-through">
-                ₹{originalPrice}
-              </span>
+              <>
+                <span className="text-sm text-[var(--text-light)] line-through decoration-red-400/50">
+                  ₹{originalPrice}
+                </span>
+                <span className="text-xs font-bold text-[var(--premium-gold-dark)] bg-[var(--premium-gold-50)] px-1.5 py-0.5 rounded">
+                  {discount}% OFF
+                </span>
+              </>
             )}
           </div>
 
           {/* CTA - Full Width on Mobile (Organic India Pattern) */}
-          <button
-            onClick={handleAddToCart}
-            className="btn-gold text-sm py-3 px-4 w-full min-h-[44px] justify-center"
+          {/* CTA - Unified Button */}
+          <Button
+            variant="primary"
+            size="md"
+            fullWidth
+            onClick={(e) => {
+              handleAddToCart(e);
+              setIsAdded(true);
+              setTimeout(() => setIsAdded(false), 2000);
+            }}
+            className={`transition-all duration-300 ${isAdded ? 'bg-[var(--herbal-green-dark)]' : ''}`}
+            icon={isAdded ? <Check size={18} /> : undefined}
           >
-            Add to Cart
-          </button>
+            {isAdded ? 'Added' : 'Add to Cart'}
+          </Button>
         </div>
       </div>
     </Link>

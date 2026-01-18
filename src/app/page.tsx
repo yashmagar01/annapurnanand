@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Leaf } from 'lucide-react';
 import TrustIcons from '@/components/TrustIcons';
+import { Button } from '@/components/ui/Button';
 import FounderSpotlight from '@/components/FounderSpotlight';
 import RiverbeltStory from '@/components/RiverbeltStory';
 import ProductCard from '@/components/ProductCard';
@@ -35,12 +36,6 @@ export default function Home() {
         {/* Content */}
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6 animate-fade-in-up">
-              <Leaf size={16} />
-              <span>From the Godavari Riverbelt</span>
-            </div>
-
             {/* Headline - Fixed contrast with parchment-cream + text-shadow */}
             <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-in-up animation-delay-100" style={{ color: 'var(--parchment-cream)', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
               Pure Plant-Based Nutrition from the{' '}
@@ -55,32 +50,12 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex flex-wrap gap-4 animate-fade-in-up animation-delay-300">
-              <Link href="/shop" className="btn-gold text-lg px-8 py-4">
+              <Button href="/shop" size="lg" icon={<ArrowRight size={20} />} iconPosition="right">
                 Explore Our Range
-                <ArrowRight size={20} />
-              </Link>
-              <Link
-                href="/about"
-                className="btn border-2 border-white text-white hover:bg-white hover:text-[var(--herbal-green)] text-lg px-8 py-4"
-              >
-                Our Story
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap gap-6 mt-12 animate-fade-in-up animation-delay-300">
-              <div className="flex items-center gap-2 text-white/80 text-sm">
-                <span className="w-2 h-2 bg-[var(--premium-gold)] rounded-full" />
-                100% Natural Ingredients
-              </div>
-              <div className="flex items-center gap-2 text-white/80 text-sm">
-                <span className="w-2 h-2 bg-[var(--premium-gold)] rounded-full" />
-                FSSAI Certified
-              </div>
-              <div className="flex items-center gap-2 text-white/80 text-sm">
-                <span className="w-2 h-2 bg-[var(--premium-gold)] rounded-full" />
-                Free Shipping ₹499+
-              </div>
+              </Button>
+              <Button href="/about" variant="secondary" size="lg" className="border-white text-white hover:bg-white hover:text-[var(--herbal-green)]">
+                 Our Story
+              </Button>
             </div>
           </div>
         </div>
@@ -148,10 +123,9 @@ export default function Home() {
 
           {/* View All CTA */}
           <div className="text-center mt-12">
-            <Link href="/shop" className="btn-outline text-lg px-8 py-3">
+            <Button href="/shop" variant="secondary" size="lg" icon={<ArrowRight size={20} />} iconPosition="right">
               View All Products
-              <ArrowRight size={20} className="ml-2" />
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -176,9 +150,9 @@ export default function Home() {
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:border-[var(--premium-gold)] focus:bg-white/20 min-h-[44px]"
               />
-              <button className="btn-gold py-3 px-6 whitespace-nowrap min-h-[44px]">
+              <Button size="lg" className="bg-[var(--premium-gold)] text-[var(--text-primary)] hover:bg-[var(--premium-gold-light)] whitespace-nowrap">
                 Receive Insights
-              </button>
+              </Button>
             </div>
 
             <p className="text-white/60 text-sm mt-4">
