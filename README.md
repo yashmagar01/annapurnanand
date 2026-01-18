@@ -9,6 +9,7 @@
 
 | Name             | Role           |
 | ---------------- | -------------- |
+| **yash magar**    | Lead Developer |
 | **Yash Date**    | Lead Developer |
 | **AI Assistant** | Builder Agent  |
 
