@@ -71,10 +71,7 @@ export default function FounderSpotlight() {
           {/* Content Side - Premium Typography */}
           <div className="order-1 lg:order-2 space-y-6">
             {/* Mobile Badge (hidden on desktop - shown above header) */}
-            <div className="hidden lg:flex items-center gap-2 bg-[var(--herbal-green-50)] text-[var(--herbal-green)] px-4 py-2 rounded-full text-sm font-medium w-fit">
-              <GraduationCap size={18} />
-              <span>Meet the Founder-Formulator</span>
-            </div>
+            {/* Verified Badge removed to reduce visual noise */}
 
             {/* Description - Clinical Premium (credentials only referenced once here) */}
             <p className="text-lg lg:text-xl text-[var(--text-secondary)] leading-relaxed">
@@ -95,19 +92,20 @@ export default function FounderSpotlight() {
             <div className="divider-gold !mx-0 !ml-0 w-16" />
 
             {/* Power Statement - Condensed Doctor's Promise */}
-            <div className="doctors-note">
-              <p className="text-lg lg:text-xl font-medium mb-4 leading-relaxed">
-                "{(founder as { powerStatement?: string }).powerStatement || founder.quote}"
-              </p>
-              <div className="flex items-center gap-4 not-italic">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--riverbelt-blue)] to-[var(--riverbelt-blue-dark)] flex items-center justify-center flex-shrink-0">
-                  <Users size={20} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-[var(--text-primary)] text-sm">
-                    {founder.name}
+            {/* Power Statement - New Quote Layout */}
+            <div className="mt-8 pt-8 border-t border-[var(--premium-gold)]/20">
+              <blockquote className="text-lg lg:text-xl font-medium italic text-[var(--riverbelt-blue)] mb-6 leading-relaxed relative">
+                <span className="absolute -top-4 -left-2 text-4xl text-[var(--premium-gold)] opacity-50 font-serif">"</span>
+                {(founder as { powerStatement?: string }).powerStatement || founder.quote}
+                <span className="absolute -bottom-4 -right-2 text-4xl text-[var(--premium-gold)] opacity-50 font-serif">"</span>
+              </blockquote>
+              
+              <div className="flex items-center gap-4">
+                <div className="text-right flex-1">
+                  <p className="font-bold text-[var(--text-primary)] text-base font-[family-name:var(--font-heading)]">
+                    — {founder.name}
                   </p>
-                  <p className="text-xs text-[var(--herbal-green)]">
+                  <p className="text-sm text-[var(--herbal-green)] font-medium">
                     {founder.title}
                   </p>
                 </div>

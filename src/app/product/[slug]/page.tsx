@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { 
   ShoppingCart, 
   Award, 
@@ -86,15 +87,14 @@ export default function ProductPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <div className="bg-[var(--parchment-dark)] py-4">
+      <div className="bg-[var(--parchment-dark)] py-2 border-b border-[var(--parchment-dark)]/50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-            <Link href="/" className="hover:text-[var(--herbal-green)]">Home</Link>
-            <ChevronRight size={14} />
-            <Link href="/shop" className="hover:text-[var(--herbal-green)]">Shop</Link>
-            <ChevronRight size={14} />
-            <span className="text-[var(--text-primary)] font-medium">{product.name}</span>
-          </div>
+          <Breadcrumbs 
+            items={[
+              { label: 'Shop', href: '/shop' },
+              { label: product.name }
+            ]} 
+          />
         </div>
       </div>
 

@@ -57,18 +57,22 @@ export default function ProductCard({
         {/* Image Container */}
         <div className="relative overflow-hidden bg-[var(--parchment)]">
           <div className="aspect-square relative">
-            {/* Placeholder gradient if no image */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--herbal-green-light)]/20 to-[var(--riverbelt-blue-light)]/20 flex items-center justify-center">
-              <div className="text-6xl">🌿</div>
-            </div>
-            {/* Actual image would go here */}
-            {/* <Image
+            {/* Product Image */}
+            <Image
               src={image}
               alt={name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            /> */}
+              onError={(e) => {
+                // Hide broken image and show fallback
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            {/* Fallback gradient (shows behind image or if image fails) */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[var(--herbal-green-light)]/20 to-[var(--riverbelt-blue-light)]/20 flex items-center justify-center">
+              <div className="text-6xl">🌿</div>
+            </div>
           </div>
 
           {/* Bestseller Ribbon */}

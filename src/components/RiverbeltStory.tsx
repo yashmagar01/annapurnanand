@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Waves, Tractor, Microscope, Home } from 'lucide-react';
+import { Waves, Tractor, Microscope, Home, ArrowRight } from 'lucide-react';
 import productsData from '@/data/products.json';
 import RiverbeltPath from './RiverbeltPath';
+import { Button } from '@/components/ui/Button';
 
 const { riverbeltStory } = productsData;
 
@@ -104,7 +105,7 @@ export default function RiverbeltStory() {
                       }`}>
                         {item.step}
                       </span>
-                      <h3 className={`font-[family-name:var(--font-heading)] text-xl font-semibold ${
+                      <h3 className={`font-[family-name:var(--font-heading)] text-xl lg:text-2xl font-bold mb-2 ${
                         isActive ? 'text-[var(--herbal-green)]' : 'text-[var(--text-secondary)]'
                       }`}>
                         {item.title}
@@ -143,13 +144,15 @@ export default function RiverbeltStory() {
 
         {/* CTA */}
         <div className="text-center mt-16">
-          <a
-            href="/about"
-            className="btn btn-link inline-flex items-center gap-2"
+          <Button
+            href="/shop"
+            size="lg"
+            variant="primary"
+            icon={<ArrowRight size={20} />}
+            iconPosition="right"
           >
-            Learn More About Our Story
-            <span>→</span>
-          </a>
+            Experience the Purity
+          </Button>
         </div>
       </div>
     </section>

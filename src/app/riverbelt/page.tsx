@@ -1,6 +1,7 @@
-import { Waves, Thermometer, Droplet, Leaf, Mountain, Award } from 'lucide-react';
+import { Waves, Thermometer, Droplet, Leaf, Mountain, Award, ArrowRight } from 'lucide-react';
 import RiverbeltStory from '@/components/RiverbeltStory';
 import Image from 'next/image';
+import { Button } from '@/components/ui/Button';
 
 export const metadata = {
   title: 'The Godavari Riverbelt | Our Source',
@@ -56,11 +57,11 @@ export default function RiverbeltPage() {
             <span>Our Source</span>
           </div>
           
-          <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            The Godavari Riverbelt
+          <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 tracking-tight" style={{ color: 'var(--parchment-cream)', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
+            The <span className="text-[var(--premium-gold)]" style={{ textShadow: '0 2px 15px rgba(212,175,55,0.4)' }}>Godavari Riverbelt</span>
           </h1>
           
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
+          <p className="text-xl lg:text-2xl text-white font-medium max-w-2xl mx-auto drop-shadow-sm">
             Where ancient rivers meet modern science. Discover why this sacred land 
             produces India's finest Moringa.
           </p>
@@ -140,9 +141,9 @@ export default function RiverbeltPage() {
                 ))}
               </ul>
 
-              <a href="/about" className="btn-herbal">
+              <Button href="/about" variant="primary" size="md">
                 Learn More About Our Story
-              </a>
+              </Button>
             </div>
 
             <div className="relative">
@@ -175,9 +176,9 @@ export default function RiverbeltPage() {
           <p className="text-white/80 mb-8 max-w-xl mx-auto">
             Taste the quality that comes from India's most fertile Moringa-growing region.
           </p>
-          <a href="/shop" className="btn-gold text-lg px-8 py-4">
+          <Button href="/shop" size="lg" className="bg-white text-[var(--herbal-green)] hover:bg-[var(--parchment)] border-none">
             Shop Our Products
-          </a>
+          </Button>
         </div>
       </section>
     </>

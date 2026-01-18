@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Filter } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import productsData from '@/data/products.json';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 const { products, categories } = productsData;
 
@@ -16,11 +17,18 @@ export default function ShopPage() {
 
   return (
     <>
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4">
+          <Breadcrumbs items={[{ label: 'Shop' }]} />
+        </div>
+      </div>
+
       {/* Page Header */}
       <section className="bg-gradient-to-r from-[var(--herbal-green)] to-[var(--riverbelt-blue)] py-16">
         <div className="container mx-auto px-4">
           <div className="text-center text-white">
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4">
+            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4 text-[var(--premium-gold)]" style={{ textShadow: '0 2px 15px rgba(212,175,55,0.3)' }}>
               Our Products
             </h1>
             <p className="text-xl text-white/80 max-w-2xl mx-auto">
