@@ -4,6 +4,7 @@ import FounderSpotlight from '@/components/FounderSpotlight';
 import RiverbeltStory from '@/components/RiverbeltStory';
 import { Button } from '@/components/ui/Button';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Our Story | Dr. Mohini Zate & HerbalGold',
@@ -21,23 +22,11 @@ export default function AboutPage() {
       </div>
 
       {/* Page Header */}
-      <section className="bg-gradient-to-r from-[var(--riverbelt-blue)] to-[var(--herbal-green)] py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-white">
-            <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Heart size={16} />
-              Our Story
-            </span>
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-[var(--premium-gold)]" style={{ textShadow: '0 2px 15px rgba(212,175,55,0.3)' }}>
-              Our Story – From Soil to Soul
-            </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              The journey of bringing ancient Ayurvedic wisdom and modern nutritional science 
-              together for your family's health.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader 
+        title="Our Story – From Soil to Soul" 
+        description="The journey of bringing ancient Ayurvedic wisdom and modern nutritional science together for your family's health."
+        icon={<Heart size={24} />}
+      />
 
       {/* Mission Section */}
       <section className="section">
