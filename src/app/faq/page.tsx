@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Frequently Asked Questions | Annapurnanand',
@@ -81,18 +82,10 @@ export default function FAQPage() {
   return (
     <>
       {/* Page Header */}
-      <section className="bg-gradient-to-r from-[var(--riverbelt-blue)] to-[var(--herbal-green)] py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-white">
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl font-bold mb-4">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Find answers to common questions about our products, shipping, and more.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader 
+        title="Frequently Asked Questions" 
+        description="Find answers to common questions about our products, shipping, and more." 
+      />
 
       {/* FAQ Content */}
       <section className="section">

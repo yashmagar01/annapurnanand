@@ -7,6 +7,7 @@ import { User, Mail, Phone, Save, Loader2, Package, Settings, LogOut } from 'luc
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import PageHeader from '@/components/PageHeader';
 
 interface Profile {
   id: string;
@@ -99,17 +100,13 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--parchment)] to-white py-12 px-4">
-      <div className="container mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold text-[var(--text-primary)]">
-            My Account
-          </h1>
-          <p className="text-[var(--text-secondary)] mt-1">
-            Manage your profile and preferences
-          </p>
-        </div>
+    <>
+      <PageHeader 
+        title="My Account" 
+        description="Manage your profile and preferences"
+      />
+      <div className="min-h-screen bg-[var(--parchment)] py-12 px-4">
+        <div className="container mx-auto max-w-4xl">
 
         <div className="grid md:grid-cols-[250px_1fr] gap-8">
           {/* Sidebar */}
@@ -233,5 +230,6 @@ export default function AccountPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
