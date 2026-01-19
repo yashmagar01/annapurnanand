@@ -19,9 +19,9 @@ export default function EditProductModal({
 }: EditProductModalProps) {
   const [formData, setFormData] = useState({
     price: 0,
-    originalPrice: 0,
-    netQty: '',
-    shortDescription: '',
+    original_price: 0,
+    net_qty: '',
+    short_description: '',
     stock: 0,
   });
 
@@ -29,9 +29,9 @@ export default function EditProductModal({
     if (product) {
       setFormData({
         price: product.price,
-        originalPrice: product.originalPrice || product.price,
-        netQty: product.netQty,
-        shortDescription: product.shortDescription,
+        original_price: product.original_price || product.price,
+        net_qty: product.net_qty || '',
+        short_description: product.short_description || '',
         stock: product.stock || 0,
       });
     }
@@ -43,9 +43,9 @@ export default function EditProductModal({
     e.preventDefault();
     onSave({
       price: Number(formData.price),
-      originalPrice: Number(formData.originalPrice),
-      netQty: formData.netQty,
-      shortDescription: formData.shortDescription,
+      original_price: Number(formData.original_price),
+      net_qty: formData.net_qty,
+      short_description: formData.short_description,
       stock: Number(formData.stock),
     });
     onClose();
@@ -97,8 +97,8 @@ export default function EditProductModal({
               </label>
               <input
                 type="number"
-                value={formData.originalPrice}
-                onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
+                value={formData.original_price}
+                onChange={(e) => setFormData({ ...formData, original_price: Number(e.target.value) })}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[var(--herbal-green)] focus:ring-2 focus:ring-[var(--herbal-green)]/20 outline-none"
                 min={0}
               />
@@ -129,8 +129,8 @@ export default function EditProductModal({
             </label>
             <input
               type="text"
-              value={formData.netQty}
-              onChange={(e) => setFormData({ ...formData, netQty: e.target.value })}
+              value={formData.net_qty}
+              onChange={(e) => setFormData({ ...formData, net_qty: e.target.value })}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[var(--herbal-green)] focus:ring-2 focus:ring-[var(--herbal-green)]/20 outline-none"
             />
           </div>
@@ -141,8 +141,8 @@ export default function EditProductModal({
               Short Description
             </label>
             <textarea
-              value={formData.shortDescription}
-              onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+              value={formData.short_description}
+              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
               rows={3}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[var(--herbal-green)] focus:ring-2 focus:ring-[var(--herbal-green)]/20 outline-none resize-none"
             />

@@ -115,7 +115,7 @@ export default function ProductsPage() {
                         </div>
                         <div>
                           <p className="font-medium text-[var(--text-primary)]">{product.name}</p>
-                          <p className="text-sm text-[var(--text-secondary)] line-clamp-1">{product.shortDescription}</p>
+                          <p className="text-sm text-[var(--text-secondary)] line-clamp-1">{product.short_description}</p>
                         </div>
                       </div>
                     </td>
@@ -127,8 +127,8 @@ export default function ProductsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-semibold text-[var(--herbal-green)]">₹{product.price}</p>
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <p className="text-sm text-[var(--text-light)] line-through">₹{product.originalPrice}</p>
+                        {product.original_price && product.original_price > product.price && (
+                          <p className="text-sm text-[var(--text-light)] line-through">₹{product.original_price}</p>
                         )}
                       </div>
                     </td>
@@ -141,7 +141,7 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">
-                      {product.netQty}
+                      {product.net_qty}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
