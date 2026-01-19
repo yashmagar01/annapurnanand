@@ -6,9 +6,15 @@ export async function middleware(request: NextRequest) {
     request,
   });
 
+  // Skip Supabase auth checks if environment variables are not configured
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn('Supabase environment variables not configured. Skipping auth middleware.');
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -32,22 +38,67 @@ export async function middleware(request: NextRequest) {
   // Refreshing the auth token
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protected routes - require login
+  const pathname = request.nextUrl.pathname;
+
+  // =====================
+  // ADMIN ROUTE PROTECTION
+  // =====================
+  const isAdminPath = pathname.startsWith('/admin');
+  
+  if (isAdminPath && pathname !== '/admin/access-denied') {
+    // Must be logged in
+    if (!user) {
+      const redirectUrl = new URL('/auth/login', request.url);
+      redirectUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.is_admin) {
+      return NextResponse.redirect(new URL('/admin/access-denied', request.url));
+    }
+  }
+
+  // =====================
+  // EMAIL VERIFICATION CHECK
+  // =====================
+  // Routes that require verified email
+  const verifiedOnlyPaths = ['/checkout'];
+  const isVerifiedOnlyPath = verifiedOnlyPaths.some(path => 
+    pathname.startsWith(path)
+  );
+
+  if (isVerifiedOnlyPath && user && !user.email_confirmed_at) {
+    return NextResponse.redirect(new URL('/auth/verify-email', request.url));
+  }
+
+  // =====================
+  // PROTECTED ROUTES (Login Required)
+  // =====================
   const protectedPaths = ['/checkout', '/account'];
   const isProtectedPath = protectedPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
+    pathname.startsWith(path)
   );
 
   if (isProtectedPath && !user) {
     const redirectUrl = new URL('/auth/login', request.url);
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+    redirectUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Redirect logged-in users away from auth pages
+  // =====================
+  // AUTH PAGE REDIRECTS
+  // =====================
+  // Redirect logged-in users away from auth pages (except verify-email)
   const authPaths = ['/auth/login', '/auth/signup'];
   const isAuthPath = authPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
+    pathname.startsWith(path)
   );
 
   if (isAuthPath && user) {

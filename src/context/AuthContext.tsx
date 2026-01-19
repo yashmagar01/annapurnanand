@@ -8,9 +8,14 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isEmailVerified: boolean;
+  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +24,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const supabase = createClient();
+
+  // Check if email is verified
+  const isEmailVerified = Boolean(user?.email_confirmed_at);
+
+  // Fetch admin status when user changes
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      console.log('Checking admin status for user:', user.id, user.email);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      console.log('Admin check result:', JSON.stringify({ data, error }, null, 2));
+      
+      if (error) {
+        console.error('Error checking admin status:', JSON.stringify(error), error.message, error.code);
+        // If no profile found, just set isAdmin to false without error
+        if (error.code === 'PGRST116') {
+          console.log('No profile found for user, isAdmin = false');
+        }
+        setIsAdmin(false);
+        return;
+      }
+
+      console.log('Setting isAdmin to:', data?.is_admin);
+      setIsAdmin(data?.is_admin ?? false);
+    };
+
+    checkAdminStatus();
+  }, [user, supabase]);
 
   useEffect(() => {
     // Get initial session
@@ -52,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           full_name: fullName,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     return { error };
@@ -65,12 +110,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const signInWithFacebook = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+    return { error };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      isEmailVerified,
+      isAdmin,
+      signUp, 
+      signIn,
+      signInWithGoogle,
+      signInWithFacebook,
+      signOut,
+      resetPassword,
+    }}>
       {children}
     </AuthContext.Provider>
   );
