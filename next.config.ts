@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'xmydflnwcierojjartvk.supabase.co',
+        port: '',
+        pathname: '/**', // Start with broad permission to ensure it works immediately
+      },
+    ],
+  },
 };
 
 export default nextConfig;
