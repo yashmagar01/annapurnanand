@@ -4,6 +4,9 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 import { createClient } from '@/lib/supabase/client';
 import type { Product, Order, OrderItem } from '@/lib/database.types';
 
+// Re-export Order type for convenience
+export type { Order } from '@/lib/database.types';
+
 // Extended Order type with items
 export interface OrderWithItems extends Order {
   order_items?: OrderItem[];
