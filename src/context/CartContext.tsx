@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useToast } from '@/context/ToastContext';
 
 export interface CartItem {
   id: string;
@@ -13,7 +14,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -46,17 +47,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isHydrated]);
 
-  const addItem = (item: Omit<CartItem, 'quantity'>) => {
+  // Use Toast
+  const { showToast } = useToast();
+
+  const addItem = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setItems(prev => {
       const existingItem = prev.find(i => i.id === item.id);
+      const quantityToAdd = item.quantity || 1;
+      
       if (existingItem) {
         return prev.map(i =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: i.quantity + quantityToAdd } : i
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: quantityToAdd }];
     });
-    setIsCartOpen(true);
+    // setIsCartOpen(true); // Don't auto-open cart, just show toast
+    showToast(`Added ${item.name} to cart`, 'success');
   };
 
   const removeItem = (id: string) => {

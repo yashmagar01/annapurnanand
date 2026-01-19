@@ -15,154 +15,184 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#1a3a4a] text-white">
-      {/* Main Footer - Increased vertical padding and column gaps */}
-      <div className="container mx-auto px-4 py-16 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Brand Column */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center">
-                <Leaf className="text-[var(--premium-gold)]" size={22} />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-[family-name:var(--font-heading)] text-xl font-bold text-white tracking-wide">
-                  ANNAPURNANAND
-                </span>
-                <span className="text-[10px] text-white/70 tracking-widest uppercase">
-                  A HerbalGold Riverbelt Initiative
-                </span>
+    <footer className="bg-gradient-to-b from-[var(--riverbelt-blue-900)] to-[#020609] text-white relative overflow-hidden">
+      {/* Texture Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, var(--premium-gold) 1px, transparent 0)', backgroundSize: '32px 32px' }}>
+      </div>
+      
+      {/* Top Border Gradient */}
+      <div className="h-1 w-full bg-gradient-to-r from-transparent via-[var(--premium-gold-dark)] to-transparent opacity-30"></div>
+
+      {/* Main Footer */}
+      <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+          
+          {/* Brand Column (Col Span 4) */}
+          <div className="lg:col-span-4 space-y-8">
+            <Link href="/" className="inline-block group">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center group-hover:border-[var(--premium-gold)]/30 transition-all duration-500">
+                  <Leaf className="text-[var(--premium-gold)] transition-transform duration-500 group-hover:scale-110" size={24} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-[family-name:var(--font-heading)] text-2xl font-bold text-white tracking-wide">
+                    ANNAPURNANAND
+                  </span>
+                  <span className="text-[10px] text-[var(--premium-gold)] tracking-[0.2em] uppercase font-medium mt-1">
+                    HerbalGold Riverbelt FPC
+                  </span>
+                </div>
               </div>
             </Link>
-            <p className="text-white/85 text-sm leading-relaxed mb-6">
-              Pure plant-based nutrition from the Godavari Riverbelt. Farmer-grown, science-backed, formulated by Dr. Mohini Zate.
+            
+            <p className="text-white/70 text-base leading-relaxed max-w-sm">
+              Cultivating wellness from the nutrient-rich soils of the Godavari Riverbelt. 
+              Our commitment bridges ancient Ayurvedic wisdom with modern scientific validation.
             </p>
-            <div className="flex gap-3">
-              <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--premium-gold)] hover:text-[var(--text-primary)] transition-all" aria-label="Facebook">
-                <Facebook size={18} />
-              </a>
-              <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--premium-gold)] hover:text-[var(--text-primary)] transition-all" aria-label="Instagram">
-                <Instagram size={18} />
-              </a>
-              <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--premium-gold)] hover:text-[var(--text-primary)] transition-all" aria-label="YouTube">
-                <Youtube size={18} />
-              </a>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <div 
-              className="flex items-center justify-between cursor-pointer md:cursor-default"
-              onClick={() => toggleSection('quick-links')}
-            >
-              <h4 className="font-[family-name:var(--font-heading)] text-xl font-semibold mb-5 md:mb-6 text-[var(--premium-gold)] tracking-wide">
-                Quick Links
-              </h4>
-              <ChevronDown 
-                size={20} 
-                className={cn("md:hidden transition-transform duration-300 mb-5 text-white/70", openSection === 'quick-links' ? 'rotate-180' : '')} 
-              />
-            </div>
-            <ul className={cn("space-y-1 overflow-hidden transition-all duration-300", 
-              openSection === 'quick-links' ? 'max-h-60' : 'max-h-0 md:max-h-none'
-            )}>
+            
+            <div className="flex gap-4 pt-2">
               {[
-                { label: 'Shop All', href: '/shop' },
-                { label: 'Our Story', href: '/about' },
-                { label: 'The Riverbelt', href: '/riverbelt' },
-                { label: 'Blog', href: '/blog' },
-                { label: 'FAQs', href: '/faq' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-white/70 hover:text-white hover:pl-2 transition-all text-sm block py-2 min-h-[44px] flex items-center"
+                  { icon: Facebook, label: "Facebook" },
+                  { icon: Instagram, label: "Instagram" },
+                  { icon: Youtube, label: "Youtube" }
+              ].map(({ icon: Icon, label }) => (
+                  <a 
+                    key={label}
+                    href="#" 
+                    className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-[var(--premium-gold)] hover:border-[var(--premium-gold)] hover:text-[var(--riverbelt-blue-900)] transition-all duration-300 group" 
+                    aria-label={label}
                   >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Products */}
-          <div>
-            <div 
-              className="flex items-center justify-between cursor-pointer md:cursor-default"
-              onClick={() => toggleSection('products')}
-            >
-              <h4 className="font-[family-name:var(--font-heading)] text-xl font-semibold mb-5 md:mb-6 text-[var(--premium-gold)] tracking-wide">
-                Our Products
-              </h4>
-              <ChevronDown 
-                size={20} 
-                className={cn("md:hidden transition-transform duration-300 mb-5 text-white/70", openSection === 'products' ? 'rotate-180' : '')} 
-              />
-            </div>
-            <ul className={cn("space-y-1 overflow-hidden transition-all duration-300", 
-              openSection === 'products' ? 'max-h-60' : 'max-h-0 md:max-h-none'
-            )}>
-              {['Health Drinks', 'Smoothie Mixes', 'Nutrition Powders', 'Capsules & Tablets', 'Digestive Care'].map((link) => (
-                <li key={link}>
-                  <Link
-                    href="/shop"
-                    className="text-white/70 hover:text-white hover:pl-2 transition-all text-sm block py-2 min-h-[44px] flex items-center"
-                  >
-                    {link}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <div 
-              className="flex items-center justify-between cursor-pointer md:cursor-default"
-              onClick={() => toggleSection('contact')}
-            >
-              <h4 className="font-[family-name:var(--font-heading)] text-xl font-semibold mb-5 md:mb-6 text-[var(--premium-gold)] tracking-wide">
-                Contact Us
-              </h4>
-              <ChevronDown 
-                size={20} 
-                className={cn("md:hidden transition-transform duration-300 mb-5 text-white/70", openSection === 'contact' ? 'rotate-180' : '')} 
-              />
-            </div>
-            <div className={cn("overflow-hidden transition-all duration-300", 
-              openSection === 'contact' ? 'max-h-96' : 'max-h-0 md:max-h-none'
-            )}>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-sm text-white/85">
-                  <MapPin size={18} className="mt-0.5 flex-shrink-0 text-[var(--premium-gold)]" />
-                  <span>Godavari Riverbelt Region,<br />Maharashtra, India</span>
-                </li>
-                <li className="flex items-center gap-3 text-sm text-white/85">
-                  <Mail size={18} className="flex-shrink-0 text-[var(--premium-gold)]" />
-                  <a href="mailto:care@annapurnanand.com" className="hover:text-white transition-colors">
-                    care@annapurnanand.com
+                    <Icon size={18} className="transition-transform group-hover:scale-110" />
                   </a>
-                </li>
-                <li className="flex items-center gap-3 text-sm text-white/85">
-                  <Phone size={18} className="flex-shrink-0 text-[var(--premium-gold)]" />
-                  <span>+91 XXXX XXXXXX</span>
-                </li>
-              </ul>
+              ))}
+            </div>
+          </div>
 
-              {/* Newsletter - Differentiated from main CTA */}
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <h5 className="text-sm font-semibold mb-1 text-white">Product Updates</h5>
-                <p className="text-xs text-white/60 mb-3">Get early access to new formulations & offers.</p>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-sm placeholder:text-white/50 focus:outline-none focus:border-[var(--premium-gold)] min-h-[44px]"
-                  />
-                  <Button size="md" className="bg-[var(--premium-gold)] text-[var(--text-primary)] hover:bg-[var(--premium-gold-light)] border-none whitespace-nowrap">
-                    Join
-                  </Button>
+          {/* Spacer on Desktop */}
+          <div className="hidden lg:block lg:col-span-1"></div>
+
+          {/* Links Section (Col Span 7 - Split into 3 columns) */}
+          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+            
+            {/* Quick Links */}
+            <div>
+               <div 
+                className="flex items-center justify-between cursor-pointer md:cursor-default group"
+                onClick={() => toggleSection('quick-links')}
+              >
+                <h4 className="font-[family-name:var(--font-heading)] text-lg text-[var(--premium-gold)] mb-6 tracking-wide relative inline-block">
+                   Quick Links
+                   <span className="absolute -bottom-2 left-0 w-8 h-[2px] bg-[var(--premium-gold)]/50 rounded-full md:block hidden"></span>
+                </h4>
+                <ChevronDown 
+                  size={18} 
+                  className={cn("md:hidden transition-transform duration-300 text-[var(--premium-gold)]", openSection === 'quick-links' ? 'rotate-180' : '')} 
+                />
+              </div>
+              <ul className={cn("space-y-3 overflow-hidden transition-all duration-300", 
+                 openSection === 'quick-links' ? 'max-h-60 mt-2' : 'max-h-0 md:max-h-none'
+               )}>
+                {[
+                  { label: 'Shop All', href: '/shop' },
+                  { label: 'Our Story', href: '/about' },
+                  { label: 'The Riverbelt', href: '/riverbelt' },
+                  { label: 'Journal', href: '/blog' },
+                  { label: 'FAQs', href: '/faq' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-white/60 hover:text-white hover:translate-x-1 transition-all duration-300 text-sm block py-1"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Collections */}
+            <div>
+               <div 
+                className="flex items-center justify-between cursor-pointer md:cursor-default group"
+                onClick={() => toggleSection('products')}
+              >
+                <h4 className="font-[family-name:var(--font-heading)] text-lg text-[var(--premium-gold)] mb-6 tracking-wide relative inline-block">
+                   Collections
+                   <span className="absolute -bottom-2 left-0 w-8 h-[2px] bg-[var(--premium-gold)]/50 rounded-full md:block hidden"></span>
+                </h4>
+                <ChevronDown 
+                  size={18} 
+                  className={cn("md:hidden transition-transform duration-300 text-[var(--premium-gold)]", openSection === 'products' ? 'rotate-180' : '')} 
+                />
+              </div>
+              <ul className={cn("space-y-3 overflow-hidden transition-all duration-300", 
+                 openSection === 'products' ? 'max-h-60 mt-2' : 'max-h-0 md:max-h-none'
+               )}>
+                 {['Health Drinks', 'Smoothie Mixes', 'Superfood Powders', 'Herbal Capsules', 'Digestive Care'].map((link) => (
+                  <li key={link}>
+                    <Link
+                      href="/shop"
+                      className="text-white/60 hover:text-white hover:translate-x-1 transition-all duration-300 text-sm block py-1"
+                    >
+                      {link}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Newsletter & Contact */}
+            <div>
+               <div 
+                className="flex items-center justify-between cursor-pointer md:cursor-default group"
+                onClick={() => toggleSection('contact')}
+              >
+                <h4 className="font-[family-name:var(--font-heading)] text-lg text-[var(--premium-gold)] mb-6 tracking-wide relative inline-block">
+                   Stay Connected
+                   <span className="absolute -bottom-2 left-0 w-8 h-[2px] bg-[var(--premium-gold)]/50 rounded-full md:block hidden"></span>
+                </h4>
+                <ChevronDown 
+                  size={18} 
+                  className={cn("md:hidden transition-transform duration-300 text-[var(--premium-gold)]", openSection === 'contact' ? 'rotate-180' : '')} 
+                />
+              </div>
+              
+              <div className={cn("overflow-hidden transition-all duration-300", 
+                 openSection === 'contact' ? 'max-h-96 mt-2' : 'max-h-0 md:max-h-none'
+               )}>
+                <div className="space-y-6">
+                  {/* Contact Info */}
+                  <ul className="space-y-4">
+                     <li className="flex items-start gap-3 group">
+                        <MapPin size={18} className="mt-1 text-[var(--premium-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-sm text-white/60 leading-relaxed font-light">
+                           Godavari Riverbelt Region,<br/>Maharashtra, India
+                        </span>
+                     </li>
+                     <li className="flex items-center gap-3 group">
+                        <Mail size={18} className="text-[var(--premium-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
+                        <a href="mailto:care@annapurnanand.com" className="text-sm text-white/60 hover:text-white transition-colors">
+                           care@annapurnanand.com
+                        </a>
+                     </li>
+                  </ul>
+
+                  {/* Newsletter Input */}
+                  <div className="pt-2">
+                     <p className="text-xs text-white/50 mb-3 uppercase tracking-wider font-medium">Join our community</p>
+                     <div className="relative">
+                        <input
+                           type="email"
+                           placeholder="Email Address"
+                           className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--premium-gold)] focus:ring-1 focus:ring-[var(--premium-gold)]/20 transition-all"
+                        />
+                        <button className="absolute right-1 top-1 bottom-1 px-3 bg-[var(--premium-gold)] text-[var(--riverbelt-blue-900)] text-xs font-bold uppercase rounded-md hover:bg-[#E5C85C] transition-colors tracking-wide">
+                           Join
+                        </button>
+                     </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -170,28 +200,33 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar - Better disclaimer formatting */}
-      <div className="border-t border-white/15 bg-[#152f3c]">
-        <div className="container mx-auto px-4 py-8">
-          {/* Elegant Disclaimer - Improved formatting */}
-          <div className="max-w-2xl mx-auto text-center mb-6">
-            <p className="text-[11px] uppercase tracking-widest text-white/50 mb-2">Disclaimer</p>
-            <p className="text-white/60 text-xs leading-relaxed">
-              Our products are food supplements made from natural ingredients. 
-              They are not intended to diagnose, treat, cure, or prevent any disease. 
-              Please consult a healthcare professional before use if you have any medical conditions or are pregnant/nursing.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-white/70 pt-4 border-t border-white/10">
-            <p>© {currentYear} Annapurnanand HerbalGold. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <span className="text-xs text-white/50">FSSAI: XXXXXXXXXX</span>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+      {/* Footer Bottom */}
+      <div className="border-t border-white/5 relative z-10">
+         <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col gap-6">
+               {/* Disclaimer */}
+               <div className="max-w-4xl mx-auto text-center">
+                  <p className="text-[10px] text-white/30 leading-normal font-light">
+                     DISCLAIMER: The products and information found on this website are not intended to replace professional medical advice or treatment. 
+                     These statements have not been evaluated by the Food and Safety Standards Authority of India (FSSAI). 
+                     Our dietary supplements are not intended to diagnose, treat, cure or prevent any disease or medical condition. 
+                     Individual results may vary.
+                  </p>
+               </div>
+               
+               {/* Links & Copyright */}
+               <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40 font-light border-t border-white/5 pt-6 mt-2">
+                  <p>&copy; {currentYear} Annapurnanand HerbalGold. All rights reserved.</p>
+                  <div className="flex items-center gap-6">
+                     <span className="hover:text-white/60 transition-colors cursor-pointer">Privacy Policy</span>
+                     <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                     <span className="hover:text-white/60 transition-colors cursor-pointer">Terms of Service</span>
+                     <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                     <span className="hover:text-white/60 transition-colors cursor-pointer">Shipping Policy</span>
+                  </div>
+               </div>
             </div>
-          </div>
-        </div>
+         </div>
       </div>
     </footer>
   );
