@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useAdmin } from '@/context/AdminContext';
+import { useAdmin, OrderWithItems } from '@/context/AdminContext';
 import { Search, Filter, Package, Calendar, Mail, ChevronDown } from 'lucide-react';
-import { Order } from '@/context/AdminContext';
 
-const statusOptions: Order['status'][] = ['pending', 'packed', 'shipped', 'delivered'];
+const statusOptions = ['pending', 'packed', 'shipped', 'delivered'] as const;
+type OrderStatus = typeof statusOptions[number];
 
-const statusColors = {
+const statusColors: Record<string, { bg: string; text: string; dot: string }> = {
   pending: {
     bg: 'bg-red-100',
     text: 'text-red-700',
@@ -19,14 +19,14 @@ const statusColors = {
     dot: 'bg-yellow-500',
   },
   shipped: {
-    bg: 'bg-[var(--premium-gold-100)]',
-    text: 'text-[var(--premium-gold-dark)]',
-    dot: 'bg-[var(--premium-gold)]',
+    bg: 'bg-amber-100',
+    text: 'text-amber-700',
+    dot: 'bg-amber-500',
   },
   delivered: {
-    bg: 'bg-[var(--herbal-green-50)]',
-    text: 'text-[var(--herbal-green)]',
-    dot: 'bg-[var(--herbal-green)]',
+    bg: 'bg-green-100',
+    text: 'text-green-700',
+    dot: 'bg-green-500',
   },
 };
 
@@ -40,13 +40,13 @@ export default function OrdersPage() {
   // Filter orders
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         (order.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (order.customer_email || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const handleStatusChange = (orderId: string, status: Order['status']) => {
+  const handleStatusChange = (orderId: string, status: string) => {
     updateOrderStatus(orderId, status);
     setActiveDropdown(null);
   };
@@ -55,6 +55,10 @@ export default function OrdersPage() {
   const pendingCount = orders.filter(o => o.status === 'pending').length;
   const shippedCount = orders.filter(o => o.status === 'shipped').length;
   const deliveredCount = orders.filter(o => o.status === 'delivered').length;
+
+  const getStatusColors = (status: string | null) => {
+    return statusColors[status || 'pending'] || statusColors.pending;
+  };
 
   return (
     <div className="p-8">
@@ -74,13 +78,13 @@ export default function OrdersPage() {
           <p className="text-red-600 font-semibold text-2xl">{pendingCount}</p>
           <p className="text-red-600/70 text-sm">Pending</p>
         </div>
-        <div className="bg-[var(--premium-gold-50)] rounded-lg p-4 border border-[var(--premium-gold-200)]">
-          <p className="text-[var(--premium-gold-dark)] font-semibold text-2xl">{shippedCount}</p>
-          <p className="text-[var(--premium-gold-dark)]/70 text-sm">Shipped</p>
+        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+          <p className="text-amber-700 font-semibold text-2xl">{shippedCount}</p>
+          <p className="text-amber-700/70 text-sm">Shipped</p>
         </div>
-        <div className="bg-[var(--herbal-green-50)] rounded-lg p-4 border border-[var(--herbal-green-200)]">
-          <p className="text-[var(--herbal-green)] font-semibold text-2xl">{deliveredCount}</p>
-          <p className="text-[var(--herbal-green)]/70 text-sm">Delivered</p>
+        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+          <p className="text-green-700 font-semibold text-2xl">{deliveredCount}</p>
+          <p className="text-green-700/70 text-sm">Delivered</p>
         </div>
       </div>
 
@@ -132,33 +136,43 @@ export default function OrdersPage() {
             </thead>
             <tbody>
               {filteredOrders.map((order) => {
-                const colors = statusColors[order.status];
+                const colors = getStatusColors(order.status);
+                const itemCount = order.order_items?.length || 0;
                 
                 return (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-[var(--parchment)]/50 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="font-mono font-semibold text-[var(--riverbelt-blue)]">{order.id}</span>
+                      <span className="font-mono font-semibold text-[var(--riverbelt-blue)]">
+                        {order.id.slice(0, 8)}...
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-[var(--text-primary)]">{order.customer}</p>
+                        <p className="font-medium text-[var(--text-primary)]">
+                          {order.customer_name || 'N/A'}
+                        </p>
                         <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
                           <Mail size={12} />
-                          {order.email}
+                          {order.customer_email || 'N/A'}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                         <Calendar size={14} />
-                        <span>{new Date(order.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <span>
+                          {order.created_at 
+                            ? new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                            : 'N/A'
+                          }
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Package size={14} className="text-[var(--text-light)]" />
                         <span className="text-[var(--text-secondary)]">
-                          {order.items.length} item{order.items.length > 1 ? 's' : ''}
+                          {itemCount} item{itemCount !== 1 ? 's' : ''}
                         </span>
                       </div>
                     </td>
@@ -174,7 +188,7 @@ export default function OrdersPage() {
                         >
                           <span className="flex items-center gap-2">
                             <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
-                            <span className="capitalize">{order.status}</span>
+                            <span className="capitalize">{order.status || 'pending'}</span>
                           </span>
                           <ChevronDown size={14} />
                         </button>
