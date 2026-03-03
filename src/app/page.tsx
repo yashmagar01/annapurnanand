@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Leaf } from 'lucide-react';
-import TrustIcons from '@/components/TrustIcons';
+import TrustBar from '@/components/TrustBar';
 import { Button } from '@/components/ui/Button';
 import FounderSpotlight from '@/components/FounderSpotlight';
 import RiverbeltStory from '@/components/RiverbeltStory';
@@ -76,8 +76,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust Icons Strip */}
-      <TrustIcons />
+      {/* Trust Bar */}
+      <TrustBar />
 
       {/* Founder Spotlight */}
       <FounderSpotlight />

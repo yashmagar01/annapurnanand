@@ -24,12 +24,19 @@ import {
   Calendar,
   Heart,
   Package,
-  Loader2
+  Loader2,
+  FlaskConical,
+  Stethoscope,
+  ShieldCheck,
+  Waves,
+  Tractor
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { createClient } from '@/lib/supabase/client';
 import productsData from '@/data/products.json';
 import { Button } from '@/components/ui/Button';
+import ProductEducationTabs from '@/components/ProductEducationTabs';
+import ReviewSection from '@/components/ReviewSection';
 
 // Icon mapping for how-to-use section
 const howToUseIcons: { [key: string]: React.ComponentType<{ size?: number; className?: string }> } = {
@@ -357,124 +364,57 @@ export default function ProductClient() {
                 </Button>
               </div>
 
-              {/* View Ingredients Button */}
+              {/* ===== DOCTOR'S VERDICT CALLOUT ===== */}
+              <div className="relative bg-gradient-to-br from-[var(--riverbelt-blue-50)] to-[var(--herbal-green-50)] border border-[var(--riverbelt-blue)]/20 rounded-2xl p-5 mb-5 overflow-hidden">
+                {/* decorative quote mark */}
+                <span className="absolute top-2 right-4 text-5xl text-[var(--riverbelt-blue)]/10 font-serif leading-none select-none">&ldquo;</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--riverbelt-blue)] flex items-center justify-center flex-shrink-0 shadow-md">
+                    <Stethoscope size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-widest text-[var(--riverbelt-blue)] mb-1">Dr. Mohini&apos;s Verdict</p>
+                    <p className="text-sm text-[var(--text-primary)] leading-relaxed line-clamp-3">
+                      {product.doctorNote}
+                    </p>
+                    <p className="mt-2 text-xs text-[var(--text-secondary)] font-semibold">— Dr. Mohini Zate, BAMS · MPH-N</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ===== CONTEXTUAL TRUST STRIP ===== */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="flex flex-col items-center gap-1 bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
+                  <ShieldCheck size={18} className="text-[var(--herbal-green)]" />
+                  <p className="text-[10px] font-semibold text-[var(--text-secondary)] leading-tight">FSSAI<br/>Licensed</p>
+                </div>
+                <div className="flex flex-col items-center gap-1 bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
+                  <Waves size={18} className="text-[var(--riverbelt-blue)]" />
+                  <p className="text-[10px] font-semibold text-[var(--text-secondary)] leading-tight">Godavari<br/>Sourced</p>
+                </div>
+                <div className="flex flex-col items-center gap-1 bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
+                  <Tractor size={18} className="text-[var(--premium-gold-dark)]" />
+                  <p className="text-[10px] font-semibold text-[var(--text-secondary)] leading-tight">500+<br/>Farmers</p>
+                </div>
+              </div>
+
+              {/* View Label link */}
               <button
                 onClick={() => setShowLabelModal(true)}
-                className="btn-outline w-full mb-6"
+                className="text-sm text-[var(--herbal-green)] underline underline-offset-2 hover:text-[var(--herbal-green-dark)] transition-colors"
               >
-                View Complete Ingredients
+                View complete product label →
               </button>
-
-              {/* Ingredients Preview */}
-              <div className="bg-[var(--parchment-dark)] rounded-xl p-4">
-                <p className="text-sm text-[var(--text-secondary)] mb-1">Ingredients:</p>
-                <p className="text-[var(--text-primary)] leading-relaxed">{product.ingredients}</p>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Doctor's Note Section */}
-      <section className="section bg-[var(--parchment)]">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              <span className="inline-flex items-center gap-2 bg-[var(--riverbelt-blue)]/10 text-[var(--riverbelt-blue)] px-4 py-2 rounded-full text-sm font-medium mb-4 border border-[var(--riverbelt-blue)]/20">
-                <Award size={16} />
-                Why Dr. Mohini Formulated This
-              </span>
-            </div>
+      {/* ===== PRODUCT EDUCATION TABS ===== */}
+      <ProductEducationTabs product={product} howToUseIcons={howToUseIcons} />
 
-            <div className="doctors-note text-lg relative">
-              <span className="absolute -top-6 -left-4 text-6xl text-[var(--premium-gold)] opacity-50 font-serif">&ldquo;</span>
-              {product.doctorNote}
-              <div className="mt-8 flex items-center justify-center gap-4 pt-6 border-t border-[var(--premium-gold)]/20">
-                <div className="w-14 h-14 rounded-full bg-[var(--riverbelt-blue)] flex items-center justify-center text-white shadow-md border-2 border-white">
-                  <span className="font-bold text-xl">Dr</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-[var(--text-primary)] text-lg">
-                    Dr. Mohini Zate
-                  </p>
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    BAMS, MPH-N | Founder & Chief Formulator
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How to Use */}
-      <section className="section bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl font-bold text-[var(--herbal-green)] text-center mb-8 flex items-center justify-center gap-2">
-              <Clock size={28} />
-              How to Use
-            </h2>
-
-            <div className="grid sm:grid-cols-3 gap-6">
-              {product.howToUse.map((step, index) => {
-                const Icon = howToUseIcons[step.icon] || Leaf;
-                return (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
-                  >
-                    <div className="w-14 h-14 mx-auto rounded-full bg-[var(--herbal-green)]/10 flex items-center justify-center mb-4 text-[var(--herbal-green)]">
-                      <Icon size={28} />
-                    </div>
-                    <p className="text-[var(--text-primary)] font-medium leading-relaxed">{step.text}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Nutrition Table */}
-      <section className="section bg-[var(--parchment-dark)] mb-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl font-bold text-[var(--herbal-green)] text-center mb-8">
-              Nutrition Information
-            </h2>
-
-            <div className="bg-white rounded-xl overflow-hidden shadow-md border border-[var(--herbal-green)]/20">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-[var(--herbal-green)] text-white">
-                    <th className="px-6 py-4 text-left font-semibold">Nutrient</th>
-                    <th className="px-6 py-4 text-right font-semibold">Per Serving ({product.nutrition.servingSize})</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(product.nutrition)
-                    .filter(([key]) => key !== 'servingSize')
-                    .map(([key, value], index) => (
-                      <tr
-                        key={key}
-                        className={index % 2 === 0 ? 'bg-[var(--parchment)]' : 'bg-white'}
-                      >
-                        <td className="px-6 py-3 text-[var(--text-primary)] capitalize font-medium">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </td>
-                        <td className="px-6 py-3 text-right font-bold text-[var(--text-primary)]">
-                          {value}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-center text-xs text-[var(--text-light)] mt-4">*Approximate values</p>
-          </div>
-        </div>
-      </section>
+      {/* ===== CUSTOMER REVIEWS ===== */}
+      <ReviewSection productId={product.id} />
 
       {/* Sticky Bottom Bar for Mobile */}
       <div 
