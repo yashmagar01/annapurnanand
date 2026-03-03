@@ -24,6 +24,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://annapurnanand.com'),
   title: {
     default: "Annapurnanand | Pure Plant-Based Nutrition from Godavari Riverbelt",
     template: "%s | Annapurnanand HerbalGold",
@@ -50,6 +51,10 @@ export const metadata: Metadata = {
     title: "Pure Plant-Based Nutrition from Godavari Riverbelt",
     description:
       "Farmer-grown, science-backed Moringa products formulated by Dr. Mohini Zate.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@annapurnanand",
   },
 };
 
