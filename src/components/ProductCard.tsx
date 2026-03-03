@@ -9,6 +9,8 @@ import { useState } from 'react';
 
 interface ProductCardProps {
   id: string;
+  variantId: string;
+  sku: string;
   slug: string;
   name: string;
   shortDescription: string;
@@ -17,12 +19,14 @@ interface ProductCardProps {
   image: string;
   netQty: string;
   category: string;
-  idealFor?: string[]; // Added for audience segmentation
-  featured?: boolean;  // For bestseller treatment
+  idealFor?: string[];
+  featured?: boolean;
 }
 
 export default function ProductCard({
   id,
+  variantId,
+  sku,
   slug,
   name,
   shortDescription,
@@ -43,6 +47,8 @@ export default function ProductCard({
     
     addItem({
       id,
+      variantId,
+      sku,
       name,
       price,
       image,

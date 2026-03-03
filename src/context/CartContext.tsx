@@ -4,7 +4,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useToast } from '@/context/ToastContext';
 
 export interface CartItem {
-  id: string;
+  id: string;        // product id (slug)
+  variantId: string;  // product_variants.id (UUID) — unique key for cart
+  sku: string;
   name: string;
   price: number;
   quantity: number;
@@ -15,8 +17,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (variantId: string) => void;
+  updateQuantity: (variantId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -35,7 +37,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedCart = localStorage.getItem('annapurnanand-cart');
     if (savedCart) {
-      setItems(JSON.parse(savedCart));
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch {
+        localStorage.removeItem('annapurnanand-cart');
+      }
     }
     setIsHydrated(true);
   }, []);
@@ -47,36 +53,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isHydrated]);
 
-  // Use Toast
   const { showToast } = useToast();
 
   const addItem = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setItems(prev => {
-      const existingItem = prev.find(i => i.id === item.id);
+      // Use variantId as the unique key for cart entries
+      const existingItem = prev.find(i => i.variantId === item.variantId);
       const quantityToAdd = item.quantity || 1;
-      
+
       if (existingItem) {
         return prev.map(i =>
-          i.id === item.id ? { ...i, quantity: i.quantity + quantityToAdd } : i
+          i.variantId === item.variantId ? { ...i, quantity: i.quantity + quantityToAdd } : i
         );
       }
       return [...prev, { ...item, quantity: quantityToAdd }];
     });
-    // setIsCartOpen(true); // Don't auto-open cart, just show toast
     showToast(`Added ${item.name} to cart`, 'success');
   };
 
-  const removeItem = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+  const removeItem = (variantId: string) => {
+    setItems(prev => prev.filter(item => item.variantId !== variantId));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (variantId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(id);
+      removeItem(variantId);
       return;
     }
     setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, quantity } : item))
+      prev.map(item => (item.variantId === variantId ? { ...item, quantity } : item))
     );
   };
 

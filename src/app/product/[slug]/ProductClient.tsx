@@ -22,9 +22,12 @@ import {
   Pill,
   Sun,
   Calendar,
-  Heart
+  Heart,
+  Package,
+  Loader2
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { createClient } from '@/lib/supabase/client';
 import productsData from '@/data/products.json';
 import { Button } from '@/components/ui/Button';
 
@@ -46,6 +49,16 @@ const howToUseIcons: { [key: string]: React.ComponentType<{ size?: number; class
   heart: Heart,
 };
 
+interface Variant {
+  id: string;
+  sku: string;
+  net_qty: string;
+  price: number;
+  compare_at_price: number | null;
+  stock_quantity: number;
+  image_url: string | null;
+}
+
 export default function ProductClient() {
   const params = useParams();
   const slug = params.slug as string;
@@ -55,31 +68,59 @@ export default function ProductClient() {
   const [isAdded, setIsAdded] = useState(false);
   const mainButtonRef = useRef<HTMLDivElement>(null);
   
+  // Variant state
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  const [loadingVariants, setLoadingVariants] = useState(true);
+
   const { addItem } = useCart();
 
+  // Get static product data (for description, nutrition, etc.)
   const product = productsData.products.find(p => p.slug === slug);
+
+  // Fetch variants from Supabase
+  useEffect(() => {
+    async function fetchVariants() {
+      setLoadingVariants(true);
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', slug)
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setVariants(data);
+        setSelectedVariant(data[0]); // Select first (cheapest) variant by default
+      }
+      setLoadingVariants(false);
+    }
+
+    if (slug) fetchVariants();
+  }, [slug]);
 
   // Intersection Observer for Sticky Bar
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Show sticky bar when main button is NOT visible (scrolled past)
         setIsStickyVisible(!entry.isIntersecting);
       },
       {
         root: null,
         threshold: 0,
-        rootMargin: "-100px 0px 0px 0px" // Trigger slightly before it fully leaves to be smoother
+        rootMargin: "-100px 0px 0px 0px"
       }
     );
 
-    if (mainButtonRef.current) {
-      observer.observe(mainButtonRef.current);
+    const currentRef = mainButtonRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (mainButtonRef.current) {
-        observer.unobserve(mainButtonRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, []);
@@ -97,26 +138,32 @@ export default function ProductClient() {
     );
   }
 
+  // Use variant price/data if available, otherwise fallback to static JSON
+  const activePrice = selectedVariant ? Number(selectedVariant.price) : product.price;
+  const activeComparePrice = selectedVariant 
+    ? (selectedVariant.compare_at_price ? Number(selectedVariant.compare_at_price) : null)
+    : product.originalPrice || null;
+  const activeNetQty = selectedVariant ? selectedVariant.net_qty : product.netQty;
+  const activeStock = selectedVariant ? selectedVariant.stock_quantity : 100;
+
   const handleAddToCart = () => {
-    // Determine quantity to add: 1 for sticky bar (usually), or maintained quantity state
-    // But for sticky bar, we might want to just add 1 or current quantity state. 
-    // Let's use the current quantity state for consistency.
-    
     addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        netQty: product.netQty,
-        quantity: quantity // Pass quantity if your addItem supports it, otherwise loop outside
+      id: product.id,
+      variantId: selectedVariant?.id || product.id,
+      sku: selectedVariant?.sku || product.id,
+      name: product.name,
+      price: activePrice,
+      image: selectedVariant?.image_url || product.image,
+      netQty: activeNetQty,
+      quantity: quantity,
     });
 
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-  const discount = product.originalPrice 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+  const discount = activeComparePrice 
+    ? Math.round(((activeComparePrice - activePrice) / activeComparePrice) * 100) 
     : 0;
 
   return (
@@ -142,30 +189,26 @@ export default function ProductClient() {
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-[var(--herbal-green-light)]/20 to-[var(--riverbelt-blue-light)]/20 rounded-2xl flex items-center justify-center relative overflow-hidden">
                 <Image 
-                  src={product.image}
+                  src={selectedVariant?.image_url || product.image}
                   alt={product.name}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none'; 
-                    // Fallback handled by parent div background if helpful, or separate state
                   }}
                 />
                 
-                {/* Fallback Icon if image fails/loads */}
                 <div className="absolute inset-0 -z-10 flex items-center justify-center">
                     <span className="text-9xl opacity-20">🌿</span>
                 </div>
 
-                {/* Discount Badge */}
                 {discount > 0 && (
                   <div className="absolute top-4 left-4 bg-[var(--premium-gold)] text-[var(--text-primary)] px-3 py-1.5 rounded-lg font-bold shadow-sm">
                     {discount}% OFF
                   </div>
                 )}
 
-                {/* Category Badge */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--herbal-green)] shadow-sm">
                   {product.category}
                 </div>
@@ -174,10 +217,9 @@ export default function ProductClient() {
 
             {/* Product Details */}
             <div>
-              {/* Doctor Formulated Badge */}
               <div className="doctor-badge inline-flex mb-4">
                 <Award size={14} />
-                <span>Dr. Mohini's Formulation</span>
+                <span>Dr. Mohini&apos;s Formulation</span>
               </div>
 
               <h1 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-2">
@@ -191,26 +233,75 @@ export default function ProductClient() {
               {/* Price */}
               <div className="flex items-baseline gap-3 mb-6">
                 <span className="text-3xl font-bold text-[var(--herbal-green)]">
-                  ₹{product.price}
+                  ₹{activePrice}
                 </span>
-                {product.originalPrice && (
+                {activeComparePrice && (
                   <>
                     <span className="text-xl text-[var(--text-light)] line-through">
-                      ₹{product.originalPrice}
+                      ₹{activeComparePrice}
                     </span>
                     <span className="text-sm font-medium text-[var(--premium-gold)]">
-                      Save ₹{product.originalPrice - product.price}
+                      Save ₹{activeComparePrice - activePrice}
                     </span>
                   </>
                 )}
               </div>
+
+              {/* Variant Selector */}
+              {variants.length > 1 && (
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-[var(--text-secondary)] mb-3">Size / Quantity:</p>
+                  <div className="flex flex-wrap gap-3">
+                    {variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => { setSelectedVariant(variant); setQuantity(1); }}
+                        className={`px-5 py-3 rounded-xl border-2 transition-all duration-200 text-sm font-semibold ${
+                          selectedVariant?.id === variant.id
+                            ? 'border-[var(--herbal-green)] bg-[var(--herbal-green-50)] text-[var(--herbal-green)] shadow-sm ring-2 ring-[var(--herbal-green)]/20'
+                            : 'border-gray-200 bg-white text-[var(--text-primary)] hover:border-[var(--herbal-green-light)]'
+                        } ${variant.stock_quantity <= 0 ? 'opacity-50 cursor-not-allowed line-through' : ''}`}
+                        disabled={variant.stock_quantity <= 0}
+                      >
+                        <span className="block">{variant.net_qty}</span>
+                        <span className="block text-xs mt-0.5 font-bold">₹{Number(variant.price)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Stock Indicator */}
+              {selectedVariant && (
+                <div className="mb-4">
+                  {activeStock > 10 ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--herbal-green)] bg-[var(--herbal-green-50)] px-3 py-1 rounded-full">
+                      <Package size={12} /> In Stock
+                    </span>
+                  ) : activeStock > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                      <Package size={12} /> Only {activeStock} left
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                      <Package size={12} /> Out of Stock
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {loadingVariants && (
+                <div className="mb-4 flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                  <Loader2 size={16} className="animate-spin" /> Loading availability...
+                </div>
+              )}
 
               {/* Key Details */}
               <div className="bg-[var(--parchment)] rounded-xl p-4 mb-6 border border-gray-100">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-[var(--text-secondary)]">Net Quantity</p>
-                    <p className="font-semibold text-[var(--text-primary)]">{product.netQty}</p>
+                    <p className="font-semibold text-[var(--text-primary)]">{activeNetQty}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--text-secondary)]">Category</p>
@@ -247,7 +338,7 @@ export default function ProductClient() {
                   </button>
                   <span className="w-12 text-center font-semibold">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(Math.min(quantity + 1, activeStock))}
                     className="p-3 hover:bg-gray-50 transition-colors"
                     aria-label="Increase quantity"
                   >
@@ -257,11 +348,12 @@ export default function ProductClient() {
 
                 <Button
                   onClick={handleAddToCart}
+                  disabled={activeStock <= 0}
                   className="flex-1 sm:flex-none py-3 px-8 text-lg shadow-lg hover:shadow-xl transition-all"
                   size="lg"
                   icon={isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
                 >
-                  {isAdded ? 'Added to Cart' : 'Add to Cart'}
+                  {isAdded ? 'Added to Cart' : activeStock <= 0 ? 'Out of Stock' : 'Add to Cart'}
                 </Button>
               </div>
 
@@ -295,7 +387,7 @@ export default function ProductClient() {
             </div>
 
             <div className="doctors-note text-lg relative">
-              <span className="absolute -top-6 -left-4 text-6xl text-[var(--premium-gold)] opacity-50 font-serif">"</span>
+              <span className="absolute -top-6 -left-4 text-6xl text-[var(--premium-gold)] opacity-50 font-serif">&ldquo;</span>
               {product.doctorNote}
               <div className="mt-8 flex items-center justify-center gap-4 pt-6 border-t border-[var(--premium-gold)]/20">
                 <div className="w-14 h-14 rounded-full bg-[var(--riverbelt-blue)] flex items-center justify-center text-white shadow-md border-2 border-white">
@@ -392,14 +484,15 @@ export default function ProductClient() {
       >
         <div className="flex items-center gap-3">
              <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                 <Image src={product.image} alt={product.name} fill className="object-cover" />
+                 <Image src={selectedVariant?.image_url || product.image} alt={product.name} fill className="object-cover" />
              </div>
              <div className="flex-1 min-w-0">
                  <p className="text-sm font-semibold truncate">{product.name}</p>
-                 <p className="text-lg font-bold text-[var(--herbal-green)]">₹{product.price}</p>
+                 <p className="text-lg font-bold text-[var(--herbal-green)]">₹{activePrice}</p>
              </div>
              <Button 
                 onClick={handleAddToCart}
+                disabled={activeStock <= 0}
                 size="md"
                 className="shadow-md"
                 icon={isAdded ? <Check size={18} /> : undefined}
@@ -417,7 +510,6 @@ export default function ProductClient() {
             onClick={() => setShowLabelModal(false)}
           />
           <div className="relative bg-[var(--parchment)] max-w-lg w-full rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto animate-fade-in-up">
-            {/* Modal Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[var(--text-primary)]">
                 Complete Product Label
@@ -433,7 +525,6 @@ export default function ProductClient() {
               </button>
             </div>
 
-            {/* Label Content - Mimics back of pack */}
             <div className="bg-white rounded-xl p-6 border-2 border-[var(--premium-gold)] relative">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-3 bg-[var(--premium-gold)] text-[var(--text-primary)] text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
                   Authentic Ayurvedic
@@ -444,7 +535,7 @@ export default function ProductClient() {
                   {product.name}
                 </h4>
                 <p className="text-xs uppercase tracking-widest text-[var(--text-secondary)]">
-                  Net Qty: {product.netQty}
+                  Net Qty: {activeNetQty}
                 </p>
               </div>
 

@@ -115,6 +115,8 @@ export default function ShopClient() {
                 <ProductCard
                   key={product.id}
                   id={product.id}
+                  variantId={product.id}
+                  sku={product.id}
                   slug={product.slug}
                   name={product.name}
                   shortDescription={product.short_description || ''}

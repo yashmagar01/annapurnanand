@@ -110,7 +110,7 @@ export default function CartSidebar() {
             <>
               {items.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.variantId}
                   className="group flex gap-4 p-3 bg-white border border-gray-100 rounded-xl hover:border-[var(--herbal-green-200)] hover:shadow-sm transition-all duration-300"
                 >
                   {/* Product Image */}
@@ -137,7 +137,7 @@ export default function CartSidebar() {
                               {item.name}
                             </h4>
                             <button
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => removeItem(item.variantId)}
                               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors -mt-1 -mr-1"
                               aria-label="Remove item"
                             >
@@ -152,7 +152,7 @@ export default function CartSidebar() {
                     <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-3 border border-gray-200 rounded-lg h-8">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
                             className="w-8 h-full flex items-center justify-center hover:bg-gray-50 rounded-l-lg text-gray-500 transition-colors disabled:opacity-50"
                             disabled={item.quantity <= 1}
                           >
@@ -162,7 +162,7 @@ export default function CartSidebar() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
                             className="w-8 h-full flex items-center justify-center hover:bg-gray-50 rounded-r-lg text-gray-500 transition-colors"
                           >
                             <Plus size={12} />

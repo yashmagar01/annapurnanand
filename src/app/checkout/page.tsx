@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MapPin, Phone, User, ChevronRight, Truck, ShieldCheck, CreditCard, Package, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react';
+import Script from 'next/script';
+import { MapPin, Phone, User, ChevronRight, Truck, ShieldCheck, CreditCard, Package, ChevronDown, ChevronUp, ShoppingBag, Banknote, Smartphone, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { validateAndCreateOrder } from '@/actions/order-actions';
+import { verifyPaymentAndUpdateOrder } from '@/actions/verify-payment';
 import Image from 'next/image';
 
 const INDIAN_STATES = [
@@ -29,6 +32,14 @@ interface AddressForm {
   pincode: string;
 }
 
+type PaymentMethod = 'RAZORPAY' | 'COD';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clearCart, totalItems } = useCart();
@@ -37,7 +48,9 @@ export default function CheckoutPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showOrderSummaryMobile, setShowOrderSummaryMobile] = useState(false); // Collapsible state
+  const [showOrderSummaryMobile, setShowOrderSummaryMobile] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('RAZORPAY');
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   
   const [address, setAddress] = useState<AddressForm>({
     fullName: '',
@@ -49,18 +62,15 @@ export default function CheckoutPage() {
     pincode: '',
   });
 
-  // Shipping cost logic
   const shippingCost = totalPrice >= 499 ? 0 : 49;
   const grandTotal = totalPrice + shippingCost;
 
-  // Pre-fill name from user metadata
   useEffect(() => {
     if (user?.user_metadata?.full_name) {
       setAddress(prev => ({ ...prev, fullName: user.user_metadata.full_name }));
     }
   }, [user]);
 
-  // Redirect to cart if empty
   useEffect(() => {
     if (!authLoading && items.length === 0) {
       router.push('/shop');
@@ -86,8 +96,12 @@ export default function CheckoutPage() {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
-      // Scroll to error
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (paymentMethod === 'RAZORPAY' && !razorpayLoaded) {
+      setError('Payment gateway is still loading. Please wait a moment.');
       return;
     }
 
@@ -95,7 +109,7 @@ export default function CheckoutPage() {
     setError('');
 
     try {
-      // Create address record
+      // Step 1: Save address to Supabase
       const { data: savedAddress, error: addressError } = await supabase
         .from('addresses')
         .insert({
@@ -114,55 +128,83 @@ export default function CheckoutPage() {
 
       if (addressError) throw addressError;
 
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user?.id,
-          address_id: savedAddress.id,
-          total: grandTotal,
-          status: 'pending',
-          customer_name: address.fullName,
-          customer_email: user?.email,
-          customer_phone: address.phone,
-          shipping_address: {
-            fullName: address.fullName,
-            phone: address.phone,
-            addressLine1: address.addressLine1,
-            addressLine2: address.addressLine2,
-            city: address.city,
-            state: address.state,
-            pincode: address.pincode,
-          },
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = items.map(item => ({
-        order_id: order.id,
-        product_id: item.id,
-        product_name: item.name,
+      // Step 2: Call server action for validated order creation
+      const cartItems = items.map(item => ({
+        variantId: item.variantId,
         quantity: item.quantity,
-        price: item.price,
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+      const result = await validateAndCreateOrder({
+        addressId: savedAddress.id,
+        paymentMethod,
+        cartItems,
+      });
 
-      if (itemsError) throw itemsError;
+      if (!result.success) {
+        setError(result.error || 'Failed to create order.');
+        setLoading(false);
+        return;
+      }
 
-      // Clear cart and redirect to success
-      clearCart();
-      router.push(`/checkout/success?orderId=${order.id}`);
+      // Step 3: Handle COD or Razorpay
+      if (paymentMethod === 'COD') {
+        clearCart();
+        router.push(`/checkout/success?orderId=${result.orderId}`);
+        return;
+      }
+
+      if (paymentMethod === 'RAZORPAY' && result.razorpayOrderId) {
+        // Open Razorpay payment modal
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          amount: result.amount,
+          currency: result.currency || 'INR',
+          name: 'Annapurnanand',
+          description: 'Ayurvedic Nutrition Order',
+          order_id: result.razorpayOrderId,
+          handler: async function (response: any) {
+            // Verify payment signature on the server
+            const verifyResult = await verifyPaymentAndUpdateOrder({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: result.orderId!,
+            });
+
+            if (verifyResult.success) {
+              clearCart();
+              router.push(`/checkout/success?orderId=${result.orderId}`);
+            } else {
+              setError('Payment verification failed. Please contact support.');
+              setLoading(false);
+            }
+          },
+          prefill: {
+            name: address.fullName,
+            email: user?.email || '',
+            contact: address.phone,
+          },
+          theme: {
+            color: '#2D5016',
+          },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+            },
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function () {
+          setError('Payment failed. Please try again or choose Cash on Delivery.');
+          setLoading(false);
+        });
+        rzp.open();
+      }
 
     } catch (err: any) {
       console.error('Order error:', err);
       setError(err.message || 'Failed to place order. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -180,7 +222,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[var(--parchment)] pb-20 lg:pb-0">
-      {/* Breadcrumb - Mobile Optimized */}
+      {/* Razorpay Script */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        onLoad={() => setRazorpayLoaded(true)}
+      />
+
+      {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100 flex-none z-30 relative">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-xs sm:text-sm text-[var(--text-secondary)]">
@@ -193,7 +241,7 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {/* Mobile Order Summary Toggle Header */}
+      {/* Mobile Order Summary Toggle */}
       <div className="lg:hidden bg-[var(--parchment-cream)] border-b border-gray-100 sticky top-0 z-20 shadow-sm">
         <button 
             onClick={() => setShowOrderSummaryMobile(!showOrderSummaryMobile)}
@@ -207,11 +255,10 @@ export default function CheckoutPage() {
             <span className="font-bold text-[var(--text-primary)] text-lg">₹{grandTotal}</span>
         </button>
         
-        {/* Collapsible Content */}
         <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-white ${showOrderSummaryMobile ? 'max-h-[500px] border-b border-gray-100' : 'max-h-0'}`}>
             <div className="p-4 space-y-4">
                 {items.map(item => (
-                    <div key={item.id} className="flex gap-4">
+                    <div key={item.variantId} className="flex gap-4">
                     <div className="w-16 h-16 relative bg-[var(--parchment)] rounded-lg overflow-hidden flex-shrink-0">
                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                         <span className="absolute top-0 right-0 bg-gray-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-bl-lg font-bold">
@@ -248,7 +295,7 @@ export default function CheckoutPage() {
         </h1>
 
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left Column - Address Form */}
+          {/* Left Column */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
             {/* Shipping Address */}
             <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 relative overflow-hidden">
@@ -257,7 +304,7 @@ export default function CheckoutPage() {
                     <div className="w-8 h-8 rounded-full bg-[var(--herbal-green-50)] flex items-center justify-center text-[var(--herbal-green)]">
                         <MapPin size={18} />
                     </div>
-                    Shipping Information
+                    <span>1. Shipping Information</span>
                   </h2>
     
                   {error && (
@@ -268,7 +315,6 @@ export default function CheckoutPage() {
                   )}
     
                   <div className="grid md:grid-cols-2 gap-5">
-                    {/* Full Name */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         Full Name <span className="text-red-500">*</span>
@@ -286,7 +332,6 @@ export default function CheckoutPage() {
                       </div>
                     </div>
     
-                    {/* Phone */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         Phone Number <span className="text-red-500">*</span>
@@ -305,8 +350,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                     </div>
-    
-                    {/* Address Line 1 */}
+
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         Address <span className="text-red-500">*</span>
@@ -321,7 +365,6 @@ export default function CheckoutPage() {
                       />
                     </div>
     
-                    {/* Address Line 2 */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         Landmark / Area <span className="text-[var(--text-light)] text-xs font-normal">(Optional)</span>
@@ -336,7 +379,6 @@ export default function CheckoutPage() {
                       />
                     </div>
     
-                    {/* City */}
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         City <span className="text-red-500">*</span>
@@ -351,7 +393,6 @@ export default function CheckoutPage() {
                       />
                     </div>
     
-                    {/* Pincode */}
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         Pincode <span className="text-red-500">*</span>
@@ -367,7 +408,6 @@ export default function CheckoutPage() {
                       />
                     </div>
     
-                    {/* State */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 ml-1">
                         State <span className="text-red-500">*</span>
@@ -388,6 +428,76 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   </div>
+              </div>
+            </div>
+
+            {/* Payment Method Selection */}
+            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100">
+              <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold text-[var(--text-primary)] mb-6 flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-full bg-[var(--herbal-green-50)] flex items-center justify-center text-[var(--herbal-green)]">
+                  <CreditCard size={18} />
+                </div>
+                <span>2. Payment Method</span>
+              </h2>
+
+              <div className="space-y-3">
+                {/* Online Payment */}
+                <button
+                  onClick={() => setPaymentMethod('RAZORPAY')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-4 text-left ${
+                    paymentMethod === 'RAZORPAY'
+                      ? 'border-[var(--herbal-green)] bg-[var(--herbal-green-50)] shadow-sm ring-2 ring-[var(--herbal-green)]/20'
+                      : 'border-gray-200 hover:border-[var(--herbal-green-light)]'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    paymentMethod === 'RAZORPAY' ? 'border-[var(--herbal-green)]' : 'border-gray-300'
+                  }`}>
+                    {paymentMethod === 'RAZORPAY' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--herbal-green)]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Smartphone size={18} className="text-[var(--herbal-green)]" />
+                      <span className="font-semibold text-[var(--text-primary)]">Pay Online</span>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      UPI (GPay, PhonePe) • Debit/Credit Cards • Net Banking • Wallets
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="w-8 h-5 bg-blue-600 rounded text-white text-[8px] flex items-center justify-center font-bold">VISA</div>
+                    <div className="w-8 h-5 bg-orange-500 rounded text-white text-[8px] flex items-center justify-center font-bold">UPI</div>
+                  </div>
+                </button>
+
+                {/* Cash on Delivery */}
+                <button
+                  onClick={() => setPaymentMethod('COD')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-4 text-left ${
+                    paymentMethod === 'COD'
+                      ? 'border-[var(--herbal-green)] bg-[var(--herbal-green-50)] shadow-sm ring-2 ring-[var(--herbal-green)]/20'
+                      : 'border-gray-200 hover:border-[var(--herbal-green-light)]'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    paymentMethod === 'COD' ? 'border-[var(--herbal-green)]' : 'border-gray-300'
+                  }`}>
+                    {paymentMethod === 'COD' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--herbal-green)]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Banknote size={18} className="text-[var(--herbal-green)]" />
+                      <span className="font-semibold text-[var(--text-primary)]">Cash on Delivery</span>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Pay when you receive your order
+                    </p>
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -414,17 +524,16 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right Column - Order Summary - Hidden on Mobile (Using Sticky Header instead), Visible on Desktop */}
+          {/* Right Column - Order Summary */}
           <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
             <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 sticky top-24">
               <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold text-[var(--text-primary)] mb-6 pb-4 border-b border-gray-100">
                 Order Summary
               </h2>
 
-              {/* Items */}
               <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map(item => (
-                  <div key={item.id} className="flex gap-4 group">
+                  <div key={item.variantId} className="flex gap-4 group">
                     <div className="w-16 h-16 relative bg-[var(--parchment)] rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                        <Image src={item.image} alt={item.name} fill className="object-cover" />
                     </div>
@@ -437,7 +546,6 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Price Breakdown */}
               <div className="space-y-3 pt-2 bg-[var(--parchment-cream)] -mx-6 -mb-6 p-6 rounded-b-2xl border-t border-gray-100">
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-secondary)]">Subtotal ({totalItems} items)</span>
@@ -457,7 +565,6 @@ export default function CheckoutPage() {
                   <span className="text-2xl font-bold text-[var(--riverbelt-blue)]">₹{grandTotal}</span>
                 </div>
 
-                {/* Place Order Button */}
                 <Button
                     onClick={handlePlaceOrder}
                     disabled={loading}
@@ -465,10 +572,10 @@ export default function CheckoutPage() {
                     size="lg"
                     fullWidth
                     className="py-4 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
-                    icon={<CreditCard size={20} />}
+                    icon={paymentMethod === 'RAZORPAY' ? <CreditCard size={20} /> : <Banknote size={20} />}
                     iconPosition="left"
                 >
-                    Place Order Now
+                    {loading ? 'Processing...' : paymentMethod === 'COD' ? 'Place Order (COD)' : 'Pay Now'}
                 </Button>
 
                 <p className="text-[10px] text-center text-[var(--text-light)] mt-4">
@@ -480,7 +587,7 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {/* Mobile Sticky Bottom Bar for Place Order */}
+      {/* Mobile Sticky Bottom Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-safe z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
            <div className="flex items-center gap-4">
                <div className="flex-1">
@@ -493,7 +600,7 @@ export default function CheckoutPage() {
                    isLoading={loading}
                    className="flex-1 shadow-md"
                >
-                   Place Order
+                   {loading ? 'Processing...' : paymentMethod === 'COD' ? 'Place Order' : 'Pay Now'}
                </Button>
            </div>
       </div>
